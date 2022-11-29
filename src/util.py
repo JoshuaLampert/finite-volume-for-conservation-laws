@@ -86,8 +86,8 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
     for i in range(1, 8):
         plt.loglog(Nxs, 2/Nxs**i, '--', c='gray')
     plt.legend()
-    plt.xlabel("log(Nx)")
-    plt.ylabel("log(error)")
+    plt.xlabel("Nx")
+    plt.ylabel("error")
     plt.show()
     
 class IntegratorGL:

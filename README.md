@@ -7,7 +7,7 @@ The package inludes several different numerical fluxes and some specific equatio
 Currently, only scalar equations in one space dimension are supported.
 
 ## Author
-The Code is currently maintained by Joshua Lampert (joshua.lampert@tuhh.de) and work in progress.
+The code is currently maintained by Joshua Lampert (joshua.lampert@tuhh.de) and work in progress.
 
 ## Requirements
 * [numpy](https://github.com/numpy/numpy)

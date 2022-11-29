@@ -28,8 +28,8 @@ if __name__ == "__main__":
         problem = Problem(Nx, xmin, xmax, t_end, equation=equation,
                           bc=bc, numerical_flux=num_flux, CFL=CFL,
                           callbacks=callbacks)
-        problems[num_flux] = problem 
-    for N in [3]:
+        problems[num_flux] = problem
+    for N in range(1, 7):
         problem_ader = Problem(Nx, xmin, xmax, t_end, equation=equation,
                                bc=bc, numerical_flux='ader', N=N, CFL=CFL,
                                Nt_max=int(1e9), N_gl=N_gl, callbacks=callbacks)
