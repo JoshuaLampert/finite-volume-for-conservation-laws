@@ -60,8 +60,7 @@ def compare_times(problems, g):
         print("solved problem {} in {} s".format(key, comp_time))
 
 def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
-               error_type=np.inf):
-    analytic_sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
+               error_type=np.inf, save=False):
     errors = {}
     orders = {}
     dNx = np.diff(np.log(Nxs))
@@ -70,11 +69,19 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
         for Nx in Nxs:
             problem.set_Nx(Nx)
             start = time.time()
-            u = problem.solve(g)[-1][0, :]
+            u = problem.solve(g)[-1]
             end = time.time()
             print("finished {} for Nx={} in {} s".format(key, Nx, end - start))
-            u_analytic = np.stack(analytic_sol(problem.x, problem.t_end))[:, 0]
-            error = np.linalg.norm(u - u_analytic, error_type)
+            u_ana = lambda x: analytic_sol(x, problem.t_end)
+            u_ana_vec = np.empty((u.shape[0], Nx))
+            x = problem.x
+            dx = problem.dx
+            for j in range(Nx):
+                u_ana_vec[:, j] = integrate_gl(u_ana, x[j] - dx/2, x[j] + dx/2)
+                u_ana_vec[:, j] /= dx
+
+            #u_analytic = np.stack(analytic_sol(problem.x, problem.t_end))[:, 0]
+            error = np.linalg.norm(u[0, :] - u_ana_vec[0, :], error_type)
             errors[key].append(error)
         diff = -np.diff(np.log(errors[key]))
         orders[key] = diff / dNx
@@ -88,8 +95,11 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
     plt.legend()
     plt.xlabel("Nx")
     plt.ylabel("error")
-    plt.show()
-    
+    if save:
+        plt.savefig("img/orders_{}.jpg".format(error_type))
+    else:
+        plt.show()
+
 class IntegratorGL:
 
     def __init__(self, N_gl=8, a=0.0, b=1.0):
