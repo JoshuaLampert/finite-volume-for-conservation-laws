@@ -80,8 +80,9 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
                 u_ana_vec[:, j] = integrate_gl(u_ana, x[j] - dx/2, x[j] + dx/2)
                 u_ana_vec[:, j] /= dx
 
-            #u_analytic = np.stack(analytic_sol(problem.x, problem.t_end))[:, 0]
             error = np.linalg.norm(u[0, :] - u_ana_vec[0, :], error_type)
+            if not error_type == np.inf:
+                error /= Nx**(1/error_type)
             errors[key].append(error)
         diff = -np.diff(np.log(errors[key]))
         orders[key] = diff / dNx
@@ -91,7 +92,7 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
     for key, error in errors.items():
         plt.loglog(Nxs, error, label=key)
     for i in range(1, 8):
-        plt.loglog(Nxs, 2/Nxs**i, '--', c='gray')
+        plt.loglog(Nxs, 1/Nxs**i, '--', c='gray')
     plt.legend()
     plt.xlabel("Nx")
     plt.ylabel("error")

@@ -189,7 +189,7 @@ class Equation:
             du_dt[:, 6] = u_tttttt
         if N not in range(1, 7):
             raise NotImplementedError("Cauchy Kovalevskaya is only " + \
-                                      "implemented for N <=6.")
+                                      "implemented for N <= 6.")
         return du_dt
 
 class Linear(Equation):
