@@ -29,24 +29,28 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None):
         end = time.time()
         print("solved {} in {} s".format(key, end - start))
     plt.clf()
-    for key, u in sols.items():
-        #plt.plot(problems[key].x, u[0, :], label=key)
-        plt.scatter(problems[key].x, u[0, :], s=10, label=key)
-    if analytic_sol is not None:
-        if callable(analytic_sol):
-            sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
-            x = problems[key].x
-            u = np.stack(sol(x)).T
-            plt.plot(x, u[0, :], "orange", label="analytical solution")
-        else:
-            raise NotImplementedError("Analytical solution has to be " + \
-                                      "provided as callable function")
-    plt.legend()
-    plt.title(title)
-    plt.xlabel("x")
-    plt.ylabel("u[0]")
-    if ylim is not None:
-            plt.ylim(ylim)
+    m = list(problems.values())[0].equation.m
+    for i in range(m):
+        ax = plt.subplot(1, m, i + 1)
+        for key, u in sols.items():
+            #ax.plot(problems[key].x, u[i, :], label=key)
+            ax.scatter(problems[key].x, u[i, :], s=10, label=key)
+            ax.legend()
+            ax.set(xlabel="x", ylabel="u[{}]".format(i),
+                   title="u[{}]".format(i))
+            if ylim is not None:
+                ax.set(ylim=ylim[i])
+        if analytic_sol is not None:
+            if callable(analytic_sol):
+                sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
+                x = problems[key].x
+                u = np.stack(sol(x)).T
+                ax = plt.subplot(1, m, i + 1)
+                ax.plot(x, u[i, :], "orange", label="analytical solution")
+            else:
+                raise NotImplementedError("Analytical solution has to be " + \
+                                          "provided as callable function")
+    plt.suptitle(title)
     if save:
         plt.savefig(title + ".jpg")
     else:
@@ -80,6 +84,7 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
                 u_ana_vec[:, j] = integrate_gl(u_ana, x[j] - dx/2, x[j] + dx/2)
                 u_ana_vec[:, j] /= dx
 
+            # only for scalar problems:
             error = np.linalg.norm(u[0, :] - u_ana_vec[0, :], error_type)
             if not error_type == np.inf:
                 error /= Nx**(1/error_type)

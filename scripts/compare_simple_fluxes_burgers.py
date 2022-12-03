@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     g = g1
     bc = "transparent"
-    ylim = [-1.0, 1.0]
+    ylim = [[-1.0, 1.0]]
     callbacks = [PlotCallback(ylim=ylim)]
     #callbacks = []
     problems = {}

@@ -2,9 +2,10 @@ import numpy as np
 
 class Equation:
 
-    def __init__(self, name):
+    def __init__(self, name, m):
 
         self.name = name
+        self.m = m
 
     """flux and flux_derivative are functions that take a vector u and return
     a vector of same length (number of unknowns / equations) for the flux
@@ -14,6 +15,13 @@ class Equation:
 
     def flux_derivative(self, u, k=1):
         raise NotImplementedError()
+
+    def eigenvalues(self, u):
+        if self.m == 1:
+            return self.flux_derivative(u)
+        else:
+            raise NotImplementedError("For systems the eigenvalues have to be " + \
+                                      "given.")
 
     """godunov_state is only needed for applying the Godunov method or the
     ADER flux to this equation"""
@@ -192,11 +200,11 @@ class Equation:
                                       "implemented for N <= 6.")
         return du_dt
 
-class Linear(Equation):
+class LinearScalar(Equation):
 
     def __init__(self, a=1.0):
         self.a = a
-        super().__init__("linear advection equation")
+        super().__init__("linear advection equation", 1)
 
     def flux(self, u):
         return np.array([self.a*u])
@@ -224,10 +232,45 @@ class Linear(Equation):
             du_dt[:, k] = (-self.a)**k*du_dx[:, k]
         return du_dt
 
+class LinearGasDynamics(Equation):
+
+    def __init__(self, a=1.0, rho_0=1.0):
+        if  a <= 0.0 or rho_0 <= 0.0:
+            raise NotImplementedError("a and rho_0 should be bigger " + \
+                                      "than 0 in linear gas dynamics equation.")
+        self.a = a
+        self.rho_0 = rho_0
+        self.A = np.array([[0.0, rho_0], [a**2 / rho_0, 0.0]])
+        super().__init__("linearized gas dynamics equation", 2)
+
+    def flux(self, u):
+        return self.A @ u
+
+    def flux_derivative(self, u, k=1):
+        if k == 0:
+            return self.flux(u)
+        elif k == 1:
+            return self.A
+        else:
+            raise NotImplementedError("higher order derivatives are not " + \
+                                      "implemented) for systems")
+
+    def eigenvalues(self, u):
+        return np.array([-self.a, self.a])
+
+    def godunov_state(self, u_L, u_R):
+        rho_L = u_L[0]
+        rho_R = u_R[0]
+        v_L = u_L[1]
+        v_R = u_R[1]
+        u_star = 0.5*np.array([rho_R + rho_L + self.rho_0/self.a*(v_L - v_R),
+                               v_R + v_L + self.a/self.rho_0*(rho_L - rho_R)])
+        return u_star
+
 class Burgers(Equation):
 
     def __init__(self):
-        super().__init__("Burgers equation")
+        super().__init__("Burgers equation", 1)
 
     def flux(self, u):
         return np.array([0.5*u**2])
@@ -273,7 +316,7 @@ class Traffic(Equation):
                                       "than 0 in traffic flow equation.")
         self.rho_max = rho_max
         self.v_max = v_max
-        super().__init__("traffic flow equation")
+        super().__init__("traffic flow equation", 1)
     
     def flux(self, u):
         return np.array([u*(1 - u/self.rho_max)*self.v_max])
@@ -314,7 +357,7 @@ class Traffic(Equation):
 class Cubic(Equation):
 
     def __init__(self):
-        super().__init__("cubic equation")
+        super().__init__("cubic equation", 1)
 
     def flux(self, u):
         return np.array([u**3/3])

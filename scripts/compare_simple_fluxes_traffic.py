@@ -13,9 +13,9 @@ if __name__ == "__main__":
         return np.array([0.2*np.exp(-10*(x + 1)**2) - \
                          0.2*np.exp(-10*(x - 1)**2) + 0.4])
     bc = "periodic"
-    ylim = [0.1, 0.8]
-    #callbacks = [PlotCallback(ylim=ylim)]
-    callbacks = []
+    ylim = [[0.1, 0.8]]
+    callbacks = [PlotCallback(ylim=ylim)]
+    #callbacks = []
     problems = {}
     for num_flux in ['rusanov', 'LxW', 'godunov', 'roe']:
         problem = Problem(Nx, xmin, xmax, t_end, equation=equation,

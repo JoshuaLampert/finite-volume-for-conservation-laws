@@ -23,21 +23,24 @@ class PlotCallback(Callback):
             self.analytic_sol = None
 
     def on_step_end(self, x, u, t):
+        m = u.shape[0]
         plt.ion()
         fig = plt.figure(1)
         plt.clf()
-        #plt.plot(x, u[0, :], label="u[0]")
-        plt.scatter(x, u[0, :], s=10, c="black", label="u[0]")
-        if callable(self.analytic_sol):
-            u_analytic = np.stack(self.analytic_sol(x, t)).T
-            plt.plot(x, u_analytic[0, :], "orange",
-                     label="analytical solution u[0]")
-        plt.legend()
-        plt.title("solution at time: {:.2f}".format(t))
-        if self.ylim is not None:
-            plt.ylim(self.ylim)
-        plt.xlabel("x")
-        plt.ylabel("u[0]")
+        for i in range(m):
+            ax = plt.subplot(1, m, i + 1)
+            ax.scatter(x, u[i, :], s=10, c="black", label="u[{}]".format(i))
+            #ax.plot(x, u[i, :], label="u[{}]".format(i))
+            if callable(self.analytic_sol):
+                u_analytic = np.stack(self.analytic_sol(x, t)).T
+                plt.plot(x, u_analytic[i, :], "orange",
+                         label="analytical solution u[{}]".format(i))
+            ax.legend()
+            ax.set(xlabel="x", ylabel="u[{}]".format(i),
+                   title="u[{}]".format(i))
+            if self.ylim is not None:
+                ax.set(ylim=self.ylim[i])
+        plt.suptitle("solution at time: {:.2f}".format(t))
         fig.canvas.draw()
         fig.canvas.flush_events()
 

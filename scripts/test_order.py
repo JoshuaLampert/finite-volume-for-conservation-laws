@@ -1,11 +1,11 @@
 import numpy as np
-from src.equations import Linear
+from src.equations import LinearScalar
 from src.problem import Problem
 from src.util import plot_order
 
 if __name__ == "__main__":
     a = 1.0
-    equation = Linear(a)
+    equation = LinearScalar(a)
     t_end = 1.0
     Nx, xmin, xmax = 100, 0.0, 1.0
     CFL = 0.95

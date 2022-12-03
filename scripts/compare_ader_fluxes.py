@@ -1,12 +1,12 @@
 import numpy as np
-from src.equations import Linear, Burgers
+from src.equations import LinearScalar, Burgers
 from src.problem import Problem
 from src.callbacks import PlotCallback
 from src.util import plot_sols
 
 if __name__ == "__main__":
     a = 1.0
-    #equation = Linear()
+    #equation = LinearScalar()
     equation = Burgers()
     t_end = 0.25
     Nx, xmin, xmax = 100, -1.0, 1.0
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         sol = sol1
     else:
         sol = None
-    ylim = [0.0, 3.0]
+    ylim = [[0.0, 3.0]]
     callbacks = [PlotCallback(ylim=ylim, analytic_sol=sol)]
     #callbacks = []
     N_gl = 8

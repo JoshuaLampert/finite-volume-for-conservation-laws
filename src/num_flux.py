@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import special
 import sympy
-from .equations import Linear, Burgers
+from .equations import LinearScalar, Burgers
 from .reconstruction import WENOReconstruction
 from .util import integrate_gl, IntegratorGL
 
@@ -148,7 +148,7 @@ class ADER(NumericalFlux):
                                                        self.du_dx_m[:, j_R, 0])
         # WARNING: Assume scalar equation here
         q0_star = self.equation.flux_derivative(du_dx_star[:, 0])[0]
-        equation_linear = Linear(q0_star)
+        equation_linear = LinearScalar(q0_star)
         for k in range(self.N):
             du_dx_star[:, k + 1] = equation_linear.godunov_state(
                 self.du_dx_p[:, j_L, k + 1],
