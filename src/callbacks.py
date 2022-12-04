@@ -14,30 +14,45 @@ class Callback:
 
 class PlotCallback(Callback):
 
-    def __init__(self, ylim=None, analytic_sol=None):
+    def __init__(self, ylim=None, analytic_sol=None, equation=None, prim=True):
         super().__init__()
         self.ylim = ylim
         if analytic_sol is not None:
             self.analytic_sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
         else:
             self.analytic_sol = None
+        self.equation = equation
+        self.prim = prim
 
     def on_step_end(self, x, u, t):
         m = u.shape[0]
         plt.ion()
         fig = plt.figure(1)
         plt.clf()
+        name = "u"
+        if callable(self.analytic_sol):
+            u_analytic = np.stack(self.analytic_sol(x, t)).T
+        if self.prim:
+            try:
+                u = self.equation.cons2prim(u)
+                name = "prim"
+                if callable(self.analytic_sol):
+                    u_analytic = self.equation.cons2prim(u_analytic)
+            except:
+                pass
+                #print("No primitive variables defined. Plot conservative.")
+
         for i in range(m):
             ax = plt.subplot(1, m, i + 1)
-            ax.scatter(x, u[i, :], s=10, c="black", label="u[{}]".format(i))
-            #ax.plot(x, u[i, :], label="u[{}]".format(i))
+            ax.scatter(x, u[i, :], s=10, c="black", label="{}[{}]".format(name,
+                                                                          i))
+            #ax.plot(x, u[i, :], label="{}[{}]".format(name, i))
             if callable(self.analytic_sol):
-                u_analytic = np.stack(self.analytic_sol(x, t)).T
                 plt.plot(x, u_analytic[i, :], "orange",
-                         label="analytical solution u[{}]".format(i))
+                         label="analytical solution {}[{}]".format(name, i))
             ax.legend()
-            ax.set(xlabel="x", ylabel="u[{}]".format(i),
-                   title="u[{}]".format(i))
+            ax.set(xlabel="x", ylabel="{}[{}]".format(name, i),
+                   title="{}[{}]".format(name, i))
             if self.ylim is not None:
                 ax.set(ylim=self.ylim[i])
         plt.suptitle("solution at time: {:.2f}".format(t))

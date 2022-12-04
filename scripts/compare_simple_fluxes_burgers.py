@@ -33,7 +33,7 @@ if __name__ == "__main__":
     bc = "transparent"
     ylim = [[-1.0, 1.0]]
     callbacks = [PlotCallback(ylim=ylim)]
-    #callbacks = []
+    callbacks = []
     problems = {}
     for num_flux in ['rusanov', 'LxW', 'godunov', 'roe']:
         problem = Problem(Nx, xmin, xmax, t_end, equation=equation,

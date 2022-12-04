@@ -236,36 +236,36 @@ class LinearGasDynamics(Equation):
 
     def __init__(self, a=1.0, rho_0=1.0):
         if  a <= 0.0 or rho_0 <= 0.0:
-            raise NotImplementedError("a and rho_0 should be bigger " + \
-                                      "than 0 in linear gas dynamics equation.")
+            raise NotImplementedError("a and rho_0 should be bigger than " + \
+                                      "0 in linear gas dynamics equations.")
         self.a = a
         self.rho_0 = rho_0
         self.A = np.array([[0.0, rho_0], [a**2 / rho_0, 0.0]])
-        super().__init__("linearized gas dynamics equation", 2)
+        super().__init__("linearized gas dynamics equations", 2)
 
-    def flux(self, u):
-        return self.A @ u
+    def flux(self, U):
+        return self.A @ U
 
-    def flux_derivative(self, u, k=1):
+    def flux_derivative(self, U, k=1):
         if k == 0:
-            return self.flux(u)
+            return self.flux(U)
         elif k == 1:
             return self.A
         else:
             raise NotImplementedError("higher order derivatives are not " + \
-                                      "implemented) for systems")
+                                      "implemented for systems")
 
-    def eigenvalues(self, u):
+    def eigenvalues(self, U):
         return np.array([-self.a, self.a])
 
-    def godunov_state(self, u_L, u_R):
-        rho_L = u_L[0]
-        rho_R = u_R[0]
-        v_L = u_L[1]
-        v_R = u_R[1]
-        u_star = 0.5*np.array([rho_R + rho_L + self.rho_0/self.a*(v_L - v_R),
+    def godunov_state(self, U_L, U_R):
+        rho_L = U_L[0]
+        rho_R = U_R[0]
+        v_L = U_L[1]
+        v_R = U_R[1]
+        U_star = 0.5*np.array([rho_R + rho_L + self.rho_0/self.a*(v_L - v_R),
                                v_R + v_L + self.a/self.rho_0*(rho_L - rho_R)])
-        return u_star
+        return U_star
 
 class Burgers(Equation):
 
@@ -409,3 +409,79 @@ class Cubic(Equation):
             raise ValueError("u_L and u_R should have the same sign. " + \
                              "Otherwise the flux is neither convex nor " + \
                              "concave.")
+
+class Euler(Equation):
+
+    def __init__(self, gamma):
+        self.gamma = gamma
+        super().__init__("Euler equations", 3)
+
+    def internal_energy(self, rho, p):
+        e = p/((self.gamma - 1) * rho)
+        return e
+
+    def total_energy(self, Q):
+        rho, v, p = Q[0], Q[1], Q[2]
+        e = self.internal_energy(rho, p)
+        E = rho * (0.5*v**2 + e)
+        return E
+
+    def pressure(self, U):
+        p = (self.gamma - 1.0) * (U[2] - 0.5 * U[1]**2 / U[0])
+        return p
+
+    def prim2cons(self, Q):
+        rho, v, p = Q[0], Q[1], Q[2]
+        E = self.total_energy(Q)
+        return np.array([rho, rho * v, E])
+
+    def cons2prim(self, U):
+        rho, rho_v, E = U[0], U[1], U[2]
+        v = rho_v / rho
+        p = self.pressure(U)
+        return np.array([rho, v, p])
+
+    def sound_speed(self, rho, p):
+        a = np.sqrt(self.gamma * p / rho)
+        return a
+        
+    def specific_enthalpy(self, rho, p):
+        e = self.internal_energy(rho, p)
+        h = e + p / rho
+        return h
+
+    def total_specific_enthalpy(self, Q):
+        rho, v, p = Q[0], Q[1], Q[2]
+        h = self.specific_enthalpy(rho, p)
+        H = 0.5 * v**2 + h
+        return H
+
+    def flux_prim(self, Q):
+        rho, v, p = Q[0], Q[1], Q[2]
+        E = self.total_energy(Q)
+        return np.array([rho * v, rho * v**2 + p, v * (E + p)])
+
+    def flux(self, U):
+        p = self.pressure(U)
+        return np.array([U[1], U[1]**2 / U[0] + p, U[1] / U[0] * (U[2] + p)])
+
+    def flux_derivative(self, U, k=1):
+        if k == 0:
+            return self.flux(U)
+        elif k == 1:
+            Q = self.cons2prim(U)
+            H = self.total_specific_enthalpy(Q)
+            v = Q[1]
+            g = self.gamma
+            return np.array([[0.0, 1.0, 0.0],
+                             [0.5*(g-3.0)*v**2, (3.0-g)*v, g - 1],
+                             [0.5*(g-1.0)*v**3 - v*H, -(g-1.0)*v**2 + H, g*v]])
+        else:
+            raise NotImplementedError("higher order derivatives are not " + \
+                                      "implemented) for systems")
+
+    def eigenvalues(self, U):
+        Q = self.cons2prim(U)
+        rho, v, p = Q[0], Q[1], Q[2]
+        a = self.sound_speed(rho, p)
+        return np.array([v - a, v, v + a])

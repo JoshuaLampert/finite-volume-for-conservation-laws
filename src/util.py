@@ -21,7 +21,8 @@ def boundary_condition(j, Nx, bc="periodic"):
         raise NotImplementedError("Unknown boundary_condition {}.".format(
             bc) + " Implemented are 'periodic' and 'transparent'.")
 
-def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None):
+def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
+              prim=True):
     sols = {}
     for key, problem in problems.items():
         start = time.time()
@@ -33,11 +34,18 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None):
     for i in range(m):
         ax = plt.subplot(1, m, i + 1)
         for key, u in sols.items():
+            name = "u"
+            if prim:
+                try:
+                    u = problems[key].equation.cons2prim(u)
+                    name = "prim"
+                except:
+                    pass
+                    #print("No primitive variables defined. Plot conservative.")
             #ax.plot(problems[key].x, u[i, :], label=key)
             ax.scatter(problems[key].x, u[i, :], s=10, label=key)
-            ax.legend()
-            ax.set(xlabel="x", ylabel="u[{}]".format(i),
-                   title="u[{}]".format(i))
+            ax.set(xlabel="x", ylabel="{}[{}]".format(name, i),
+                   title="{}[{}]".format(name, i))
             if ylim is not None:
                 ax.set(ylim=ylim[i])
         if analytic_sol is not None:
@@ -45,11 +53,20 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None):
                 sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
                 x = problems[key].x
                 u = np.stack(sol(x)).T
+                if prim:
+                    try:
+                        u = problems[key].equation.cons2prim(u)
+                    except:
+                        pass
+                        #print("No primitive variables defined. Plot " + \
+                        #      "conservative.")
+
                 ax = plt.subplot(1, m, i + 1)
                 ax.plot(x, u[i, :], "orange", label="analytical solution")
             else:
                 raise NotImplementedError("Analytical solution has to be " + \
                                           "provided as callable function")
+        ax.legend()
     plt.suptitle(title)
     if save:
         plt.savefig(title + ".jpg")

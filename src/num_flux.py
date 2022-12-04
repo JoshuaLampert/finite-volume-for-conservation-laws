@@ -19,10 +19,15 @@ class Rusanov(NumericalFlux):
         super().__init__(equation)
 
     def __call__(self, u_L, u_R):
-        a = np.max(np.abs([self.equation.flux_derivative(u_L),
-                           self.equation.flux_derivative(u_R)]))
+        S_max = 0.0
+        lambda_L = self.equation.eigenvalues(u_L)
+        lambda_R = self.equation.eigenvalues(u_R)
+        m = u_L.shape[0]
+        for i in range(m):
+            S = np.max(np.abs([lambda_L[i], lambda_R[i]]))
+            S_max = np.maximum(S_max, S)
         return 0.5*(self.equation.flux(u_R) + self.equation.flux(u_L) -\
-                    a*(u_R - u_L))
+                    S_max*(u_R - u_L))
 
 class LaxWendroff(NumericalFlux):
 
@@ -35,9 +40,9 @@ class LaxWendroff(NumericalFlux):
         dt = self.dt
         dx = self.dx
         flux = self.equation.flux
-        a = self.equation.flux_derivative(0.5*(u_L + u_R))
-        return 0.5*(flux(u_R) + flux(u_L)) -\
-               a*0.5*dt/dx*(flux(u_R) - flux(u_L))
+        A = self.equation.flux_derivative(0.5*(u_L + u_R))
+        return 0.5*(flux(u_R) + flux(u_L) -\
+                    dt/dx*A @ (flux(u_R) - flux(u_L)))
 
 class Roe(NumericalFlux):
 
