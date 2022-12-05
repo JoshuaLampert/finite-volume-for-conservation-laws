@@ -71,10 +71,10 @@ class Problem:
             for callback in self.callbacks:
                 callback.on_step_end(self.x, u[-1], t)
             if t >= self.t_end:
-                for callbak in self.callbacks:
+                for callback in self.callbacks:
                     callback.on_end()
                 return np.array(u)
-        for callbak in self.callbacks:
+        for callback in self.callbacks:
             callback.on_end()
         return np.array(u)
 
