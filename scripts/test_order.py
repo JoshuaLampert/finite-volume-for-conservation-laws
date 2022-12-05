@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.equations import LinearScalar
 from src.problem import Problem
 from src.util import plot_order
@@ -35,4 +36,5 @@ if __name__ == "__main__":
                                Nt_max=int(1e9), N_gl=N_gl, callbacks=callbacks)
         problems["ADER" + str(N)] = problem_ader
     Nxs = 16*2**np.arange(4)
-    plot_order(problems, g, analytic_sol, Nxs=Nxs, save=True, error_type=np.inf)
+    plot_order(problems, g, analytic_sol, Nxs=Nxs, save=True,
+               error_type=np.inf)

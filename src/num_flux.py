@@ -1,9 +1,11 @@
 import numpy as np
-from scipy import special
 import sympy
-from .equations import LinearScalar, Burgers
+from scipy import special
+
+from .equations import Burgers, LinearScalar
 from .reconstruction import WENOReconstruction
-from .util import integrate_gl, IntegratorGL
+from .util import IntegratorGL
+
 
 class NumericalFlux:
 
@@ -12,6 +14,7 @@ class NumericalFlux:
 
     def __call__(self, u_L, u_R):
         raise NotImplementedError()
+
 
 class Rusanov(NumericalFlux):
 
@@ -26,8 +29,9 @@ class Rusanov(NumericalFlux):
         for i in range(m):
             S = np.max(np.abs([lambda_L[i], lambda_R[i]]))
             S_max = np.maximum(S_max, S)
-        return 0.5*(self.equation.flux(u_R) + self.equation.flux(u_L) -\
+        return 0.5*(self.equation.flux(u_R) + self.equation.flux(u_L) -
                     S_max*(u_R - u_L))
+
 
 class LaxWendroff(NumericalFlux):
 
@@ -41,8 +45,9 @@ class LaxWendroff(NumericalFlux):
         dx = self.dx
         flux = self.equation.flux
         A = self.equation.flux_derivative(0.5*(u_L + u_R))
-        return 0.5*(flux(u_R) + flux(u_L) -\
+        return 0.5*(flux(u_R) + flux(u_L) -
                     dt/dx*A @ (flux(u_R) - flux(u_L)))
+
 
 class Roe(NumericalFlux):
 
@@ -52,7 +57,7 @@ class Roe(NumericalFlux):
 
     def __call__(self, u_L, u_R):
         if u_L.size > 1 or u_R.size > 1:
-            raise NotImplementedError("Roe flux is only implemented for " + \
+            raise NotImplementedError("Roe flux is only implemented for " +
                                       "scalar equations.")
         else:
             u_L = u_L[0]
@@ -68,6 +73,7 @@ class Roe(NumericalFlux):
                 else:
                     return np.array([F_R])
 
+
 class Godunov(NumericalFlux):
 
     def __init__(self, equation=Burgers()):
@@ -75,10 +81,11 @@ class Godunov(NumericalFlux):
 
     def __call__(self, u_L, u_R):
         if self.equation.godunov_state is None:
-            raise NotImplementedError("The equation has to implement the " + \
-                                      "godunov_state in order to use the " + \
+            raise NotImplementedError("The equation has to implement the " +
+                                      "godunov_state in order to use the " +
                                       "Godunov numerical_flux.")
         return self.equation.flux(self.equation.godunov_state(u_L, u_R))
+
 
 class SpaceBase:
 
@@ -111,6 +118,7 @@ class SpaceBase:
                 phi[r, k] = np.polyval(poly_deg_r_deriv_k, x)
         return phi
 
+
 class ADER(NumericalFlux):
 
     def __init__(self, x, dt, dx, N=3, N_gl=8, bc="transparent",
@@ -136,16 +144,17 @@ class ADER(NumericalFlux):
         # compute spatial derivatives of u
         for k in range(self.N + 1):
             self.du_dx_m[:, :, k] = 1/self.dx ** k *\
-                                    np.sum(w_hat*self.phi_L[:, :, k, :], axis=1)
+                                    np.sum(w_hat*self.phi_L[:, :, k, :],
+                                           axis=1)
             self.du_dx_p[:, :, k] = 1/self.dx ** k *\
-                                    np.sum(w_hat*self.phi_R[:, :, k, :], axis=1)
+                np.sum(w_hat*self.phi_R[:, :, k, :], axis=1)
         # set new dt to integrator
         self.integrator.set_bounds(0, self.dt)
 
     def __call__(self, j_L, j_R):
         if self.equation.cauchy_kovalevskaya is None:
-            raise NotImplementedError("The equation has to implement " + \
-                                      "cauchy_kovalevskaya in order to use " + \
+            raise NotImplementedError("The equation has to implement " +
+                                      "cauchy_kovalevskaya in order to use " +
                                       "the ADER numerical_flux.")
         # Solve generalized Riemann problems by Toro-Titarev solver
         du_dx_star = np.empty((self.du_dx_m.shape[0], self.N + 1))
@@ -161,9 +170,10 @@ class ADER(NumericalFlux):
         # compute time derivatives of u from spatial derivatives
         du_dt = self.equation.cauchy_kovalevskaya(du_dx_star)
         # approximation to f(u(x_{j\pm 1/2}, 0_+))
+
         def f_u(tau):
-            #u_taylor = 0.0
-            #for k in range(self.N + 1):
+            # u_taylor = 0.0
+            # for k in range(self.N + 1):
             #    u_taylor += du_dt[:, k] * tau**k / np.math.factorial(k)
             zero_N = np.arange(self.N + 1)
             u_taylor = np.sum(du_dt * tau**zero_N / special.factorial(zero_N),

@@ -1,7 +1,8 @@
 import numpy as np
+
+from src.callbacks import PlotCallback
 from src.equations import ShallowWater
 from src.problem import Problem
-from src.callbacks import PlotCallback
 from src.util import plot_sols
 
 if __name__ == "__main__":
@@ -10,6 +11,7 @@ if __name__ == "__main__":
     Nx, xmin, xmax = 100, -1.0, 1.0
     t_end = 1.0
     CFL = 0.95
+
     def u0(x):
         if x < 0.0:
             return np.array([1.1, 0.0])
@@ -18,7 +20,7 @@ if __name__ == "__main__":
     ylim = [[0.8, 1.2], [-0.1, 0.2]]
     bc = "transparent"
     callbacks = [PlotCallback(ylim=ylim, equation=equation, prim=False)]
-    #callbacks = []
+    # callbacks = []
     problems = {}
     for num_flux in ["rusanov", "LxW"]:
         problem = Problem(Nx, xmin, xmax, t_end, equation=equation,

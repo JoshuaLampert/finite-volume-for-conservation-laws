@@ -1,7 +1,8 @@
 import numpy as np
+
+from src.callbacks import PlotCallback
 from src.equations import Burgers
 from src.problem import Problem
-from src.callbacks import PlotCallback
 from src.util import plot_sols
 
 if __name__ == "__main__":
@@ -13,16 +14,19 @@ if __name__ == "__main__":
     def g1(x):
         # should return array which has the size as the number of unknowns
         return np.array([np.exp(-10*(x + 1)**2) - np.exp(-10*(x - 1)**2)])
+
     def g2(x):
         if x < 0:
             return np.array([0.5])
         else:
             return np.array([1.0])
+
     def g3(x):
         if x < 0:
             return np.array([-1.0])
         else:
             return np.array([1.0])
+
     def g4(x):
         if x < 0:
             return np.array([-1.0])

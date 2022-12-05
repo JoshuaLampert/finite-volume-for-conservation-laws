@@ -1,7 +1,9 @@
 import numpy as np
+
 from .equations import Burgers
-from .num_flux import NumericalFlux, Rusanov, LaxWendroff, Roe, Godunov, ADER
+from .num_flux import ADER, Godunov, LaxWendroff, NumericalFlux, Roe, Rusanov
 from .util import boundary_condition, integrate_gl
+
 
 class Problem:
 
@@ -36,7 +38,7 @@ class Problem:
             self.numerical_flux = ADER(self.x, 1.0, dx, N, N_gl, bc, equation)
         else:
             raise NotImplementedError("Unknown numerical_flux {}.".format(
-                numerical_flux) + " Implemented are 'rusanov', 'LxW', 'roe'" + \
+                numerical_flux) + " Implemented are 'rusanov', 'LxW', 'roe'" +
                                       ", 'godunov' and 'ader'.")
         self.CFL = CFL
         self.Nt_max = Nt_max

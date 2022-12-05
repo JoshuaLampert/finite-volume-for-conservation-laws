@@ -1,6 +1,8 @@
+import time
+
 import numpy as np
 from matplotlib import pyplot as plt
-import time
+
 
 def boundary_condition(j, Nx, bc="periodic"):
     if bc == "periodic":
@@ -21,6 +23,7 @@ def boundary_condition(j, Nx, bc="periodic"):
         raise NotImplementedError("Unknown boundary_condition {}.".format(
             bc) + " Implemented are 'periodic' and 'transparent'.")
 
+
 def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
               prim=True):
     sols = {}
@@ -39,10 +42,11 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
                 try:
                     u = problems[key].equation.cons2prim(u)
                     name = "Q"
-                except:
+                except AttributeError:
                     pass
-                    #print("No primitive variables defined. Plot conservative.")
-            #ax.plot(problems[key].x, u[i, :], label=key)
+                    # print("No primitive variables defined. Plot " +
+                    # "conservative.")
+            # ax.plot(problems[key].x, u[i, :], label=key)
             ax.scatter(problems[key].x, u[i, :], s=10, label=key)
             ax.set(xlabel="x", ylabel="{}[{}]".format(name, i),
                    title="{}[{}]".format(name, i))
@@ -56,15 +60,15 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
                 if prim:
                     try:
                         u = problems[key].equation.cons2prim(u)
-                    except:
+                    except AttributeError:
                         pass
-                        #print("No primitive variables defined. Plot " + \
+                        # print("No primitive variables defined. Plot " + \
                         #      "conservative.")
 
                 ax = plt.subplot(1, m, i + 1)
                 ax.plot(x, u[i, :], "orange", label="analytical solution")
             else:
-                raise NotImplementedError("Analytical solution has to be " + \
+                raise NotImplementedError("Analytical solution has to be " +
                                           "provided as callable function")
         ax.legend()
     plt.suptitle(title)
@@ -73,12 +77,14 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
     else:
         plt.show()
 
+
 def compare_times(problems, g):
     for key, problem in problems.items():
         start = time.time()
         problem.solve(g)
         comp_time = time.time() - start
         print("solved problem {} in {} s".format(key, comp_time))
+
 
 def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
                error_type=np.inf, save=False):
@@ -93,7 +99,7 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
             u = problem.solve(g)[-1]
             end = time.time()
             print("finished {} for Nx={} in {} s".format(key, Nx, end - start))
-            u_ana = lambda x: analytic_sol(x, problem.t_end)
+            def u_ana(x): analytic_sol(x, problem.t_end)
             u_ana_vec = np.empty((u.shape[0], Nx))
             x = problem.x
             dx = problem.dx
@@ -123,6 +129,7 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
     else:
         plt.show()
 
+
 class IntegratorGL:
 
     def __init__(self, N_gl=8, a=0.0, b=1.0):
@@ -139,7 +146,8 @@ class IntegratorGL:
     def integrate(self, g):
         gx = np.vectorize(g)(self.xi)
         return np.sum(self.w*gx)
-        
+
+
 def integrate_gl(g, a, b, N_gl=8):
     """Gauss-Legendre quadrature."""
     # xi in [-1,1]
@@ -150,5 +158,5 @@ def integrate_gl(g, a, b, N_gl=8):
     gx = np.empty((num_unkn, xi.size))
     for i in range(xi.size):
         gx[:, i] = g(xi[i])
-        #gx[:, i] = g(xi[i]*(b - a) + a) # for xi in [0,1]
+        # gx[:, i] = g(xi[i]*(b - a) + a) # for xi in [0,1]
     return np.sum(w*gx, axis=1)

@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 class Callback:
 
     def __init__(self):
@@ -11,6 +12,7 @@ class Callback:
 
     def on_end(self):
         raise NotImplementedError()
+
 
 class PlotCallback(Callback):
 
@@ -38,15 +40,15 @@ class PlotCallback(Callback):
                 name = "Q"
                 if callable(self.analytic_sol):
                     u_analytic = self.equation.cons2prim(u_analytic)
-            except:
+            except AttributeError:
                 pass
-                #print("No primitive variables defined. Plot conservative.")
+                # print("No primitive variables defined. Plot conservative.")
 
         for i in range(m):
             ax = plt.subplot(1, m, i + 1)
             ax.scatter(x, u[i, :], s=10, c="black", label="{}[{}]".format(name,
                                                                           i))
-            #ax.plot(x, u[i, :], label="{}[{}]".format(name, i))
+            # ax.plot(x, u[i, :], label="{}[{}]".format(name, i))
             if callable(self.analytic_sol):
                 plt.plot(x, u_analytic[i, :], "orange",
                          label="analytical solution {}[{}]".format(name, i))
@@ -61,6 +63,7 @@ class PlotCallback(Callback):
 
     def on_end(self):
         pass
+
 
 class ErrorCallback(Callback):
 
@@ -77,7 +80,7 @@ class ErrorCallback(Callback):
         self.ts.append(t)
 
     def on_end(self):
-        fig = plt.figure()
+        plt.figure()
         plt.semilogy(self.ts, self.errors,
                      label=str(self.error_type) + " error")
         plt.xlabel("t")

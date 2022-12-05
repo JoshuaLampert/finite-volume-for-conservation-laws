@@ -4,7 +4,7 @@ This repository contains several finite volume methods for solving a hyperbolic 
 $$\frac{\partial u}{\partial t} + \frac{\partial f(u)}{\partial x} = 0.$$
 
 The package inludes several different numerical fluxes and some specific equations. Some examples are given in the scripts/ folder.
-Currently, only one space dimension are supported.
+Currently, only one space dimension is supported.
 
 ## Author
 The code is currently maintained by Joshua Lampert (joshua.lampert@tuhh.de) and work in progress.

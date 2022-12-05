@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Equation:
 
     def __init__(self, name, m):
@@ -20,8 +21,8 @@ class Equation:
         if self.m == 1:
             return self.flux_derivative(u)
         else:
-            raise NotImplementedError("For systems the eigenvalues have to be " + \
-                                      "given.")
+            raise NotImplementedError("For systems the eigenvalues have to" +
+                                      "be given.")
 
     """godunov_state is only needed for applying the Godunov method or the
     ADER flux to this equation"""
@@ -50,155 +51,156 @@ class Equation:
         if N >= 3:
             u_xxx = du_dx[:, 3]
             u_xxt = -df[:, 3]*u_x**3 - df[:, 1]*u_xxx - 3*df[:, 2]*u_x*u_xx
-            u_xtt = -df[:, 1]*u_xxt - df[:, 2]*u_t*u_xx - 2*df[:, 2]*u_x*u_xt -\
-                    df[:, 3]*u_t*u_x**2
-            u_ttt = -df[:, 1]*u_xtt - 2*df[:, 2]*u_t*u_xt - df[:, 2]*u_x*u_tt -\
-                    df[:, 3]*u_t**2*u_x
+            u_xtt = -df[:, 1]*u_xxt - df[:, 2]*u_t*u_xx - \
+                2*df[:, 2]*u_x*u_xt - df[:, 3]*u_t*u_x**2
+            u_ttt = -df[:, 1]*u_xtt - 2*df[:, 2]*u_t*u_xt - \
+                df[:, 2]*u_x*u_tt - df[:, 3]*u_t**2*u_x
             du_dt[:, 3] = u_ttt
         if N >= 4:
             u_xxxx = du_dx[:, 4]
-            u_xxxt = -df[:, 1]*u_xxxx - 3*df[:, 2]*u_xx**2 - df[:, 4]*u_x**4 - \
-                     4*df[:, 2]*u_x*u_xxx - 6*df[:, 3]*u_x**2*u_xx
+            u_xxxt = -df[:, 1]*u_xxxx - 3*df[:, 2]*u_xx**2 - df[:, 4]*u_x**4 -\
+                4*df[:, 2]*u_x*u_xxx - 6*df[:, 3]*u_x**2*u_xx
             u_xxtt = -df[:, 1]*u_xxxt - df[:, 4]*u_t*u_x**3 - \
-                     df[:, 2]*u_t*u_xxx - 3*df[:, 2]*u_x*u_xxt - \
-                     3*df[:, 2]*u_xt*u_xx - 3*df[:, 3]*u_x**2*u_xt - \
-                     3*df[:, 3]*u_t*u_x*u_xx
+                df[:, 2]*u_t*u_xxx - 3*df[:, 2]*u_x*u_xxt - \
+                3*df[:, 2]*u_xt*u_xx - 3*df[:, 3]*u_x**2*u_xt - \
+                3*df[:, 3]*u_t*u_x*u_xx
             u_xttt = -df[:, 1]*u_xxtt - 2*df[:, 2]*u_xt**2 - \
-                     2*df[:, 2]*u_t*u_xxt - 2*df[:, 2]*u_x*u_xtt - \
-                     df[:, 2]*u_tt*u_xx - df[:, 3]*u_x**2*u_tt -\
-                     df[:, 3]*u_t**2*u_xx - df[:, 4]*u_t**2*u_x**2 - \
-                     4*df[:, 3]*u_t*u_x*u_xt
+                2*df[:, 2]*u_t*u_xxt - 2*df[:, 2]*u_x*u_xtt - \
+                df[:, 2]*u_tt*u_xx - df[:, 3]*u_x**2*u_tt -\
+                df[:, 3]*u_t**2*u_xx - df[:, 4]*u_t**2*u_x**2 - \
+                4*df[:, 3]*u_t*u_x*u_xt
             u_tttt = -df[:, 1]*u_xttt - df[:, 4]*u_t**3*u_x - \
-                     3*df[:, 2]*u_t*u_xtt - df[:, 2]*u_x*u_ttt - \
-                     3*df[:, 2]*u_tt*u_xt - 3*df[:, 3]*u_t**2*u_xt - \
-                     3*df[:, 3]*u_t*u_x*u_tt
+                3*df[:, 2]*u_t*u_xtt - df[:, 2]*u_x*u_ttt - \
+                3*df[:, 2]*u_tt*u_xt - 3*df[:, 3]*u_t**2*u_xt - \
+                3*df[:, 3]*u_t*u_x*u_tt
             du_dt[:, 4] = u_tttt
         if N >= 5:
             u_xxxxx = du_dx[:, 5]
             u_xxxxt = -df[:, 5]*u_x**5 - df[:, 1]*u_xxxxx - \
-                      15*df[:, 3]*u_x*u_xx**2 - 10*df[:, 4]*u_x**3*u_xx - \
-                      5*df[:, 2]*u_x*u_xxxx - 10*df[:, 2]*u_xx*u_xxx - \
-                      10*df[:, 3]*u_x**2*u_xxx
+                15*df[:, 3]*u_x*u_xx**2 - 10*df[:, 4]*u_x**3*u_xx - \
+                5*df[:, 2]*u_x*u_xxxx - 10*df[:, 2]*u_xx*u_xxx - \
+                10*df[:, 3]*u_x**2*u_xxx
             u_xxxtt = -df[:, 1]*u_xxxxt - 3*df[:, 3]*u_t*u_xx**2 - \
-                      df[:, 5]*u_t*u_x**4 - 4*df[:, 4]*u_x**3*u_xt - \
-                      df[:, 2]*u_t*u_xxxx - 4*df[:, 2]*u_x*u_xxxt - \
-                      4*df[:, 2]*u_xt*u_xxx - 6*df[:, 2]*u_xx*u_xxt - \
-                      6*df[:, 3]*u_x**2*u_xxt - 4*df[:, 3]*u_t*u_x*u_xxx - \
-                      12*df[:, 3]*u_x*u_xt*u_xx - 6*df[:, 4]*u_t*u_x**2*u_xx
+                df[:, 5]*u_t*u_x**4 - 4*df[:, 4]*u_x**3*u_xt - \
+                df[:, 2]*u_t*u_xxxx - 4*df[:, 2]*u_x*u_xxxt - \
+                4*df[:, 2]*u_xt*u_xxx - 6*df[:, 2]*u_xx*u_xxt - \
+                6*df[:, 3]*u_x**2*u_xxt - 4*df[:, 3]*u_t*u_x*u_xxx - \
+                12*df[:, 3]*u_x*u_xt*u_xx - 6*df[:, 4]*u_t*u_x**2*u_xx
             u_xxttt = -df[:, 1]*u_xxxtt - 6*df[:, 3]*u_x*u_xt**2 - \
-                      df[:, 4]*u_x**3*u_tt - 2*df[:, 2]*u_t*u_xxxt - \
-                      3*df[:, 2]*u_x*u_xxtt - df[:, 2]*u_tt*u_xxx - \
-                      6*df[:, 2]*u_xt*u_xxt - 3*df[:, 2]*u_xx*u_xtt - \
-                      df[:, 5]*u_t**2*u_x**3 - 3*df[:, 3]*u_x**2*u_xtt - \
-                      df[:, 3]*u_t**2*u_xxx - 6*df[:, 3]*u_t*u_x*u_xxt - \
-                      6*df[:, 3]*u_t*u_xt*u_xx - 3*df[:, 3]*u_x*u_tt*u_xx - \
-                      6*df[:, 4]*u_t*u_x**2*u_xt - 3*df[:, 4]*u_t**2*u_x*u_xx
+                df[:, 4]*u_x**3*u_tt - 2*df[:, 2]*u_t*u_xxxt - \
+                3*df[:, 2]*u_x*u_xxtt - df[:, 2]*u_tt*u_xxx - \
+                6*df[:, 2]*u_xt*u_xxt - 3*df[:, 2]*u_xx*u_xtt - \
+                df[:, 5]*u_t**2*u_x**3 - 3*df[:, 3]*u_x**2*u_xtt - \
+                df[:, 3]*u_t**2*u_xxx - 6*df[:, 3]*u_t*u_x*u_xxt - \
+                6*df[:, 3]*u_t*u_xt*u_xx - 3*df[:, 3]*u_x*u_tt*u_xx - \
+                6*df[:, 4]*u_t*u_x**2*u_xt - 3*df[:, 4]*u_t**2*u_x*u_xx
             u_xtttt = -df[:, 1]*u_xxttt - 6*df[:, 3]*u_t*u_xt**2 - \
-                      df[:, 4]*u_t**3*u_xx - 3*df[:, 2]*u_t*u_xxtt - \
-                      2*df[:, 2]*u_x*u_xttt - 3*df[:, 2]*u_tt*u_xxt - \
-                      6*df[:, 2]*u_xt*u_xtt - df[:, 2]*u_xx*u_ttt - \
-                      df[:, 5]*u_t**3*u_x**2 - df[:, 3]*u_x**2*u_ttt - \
-                      3*df[:, 3]*u_t**2*u_xxt - 6*df[:, 3]*u_t*u_x*u_xtt - \
-                      3*df[:, 3]*u_t*u_tt*u_xx - 6*df[:, 3]*u_x*u_tt*u_xt - \
-                      3*df[:, 4]*u_t*u_x**2*u_tt - 6*df[:, 4]*u_t**2*u_x*u_xt
+                df[:, 4]*u_t**3*u_xx - 3*df[:, 2]*u_t*u_xxtt - \
+                2*df[:, 2]*u_x*u_xttt - 3*df[:, 2]*u_tt*u_xxt - \
+                6*df[:, 2]*u_xt*u_xtt - df[:, 2]*u_xx*u_ttt - \
+                df[:, 5]*u_t**3*u_x**2 - df[:, 3]*u_x**2*u_ttt - \
+                3*df[:, 3]*u_t**2*u_xxt - 6*df[:, 3]*u_t*u_x*u_xtt - \
+                3*df[:, 3]*u_t*u_tt*u_xx - 6*df[:, 3]*u_x*u_tt*u_xt - \
+                3*df[:, 4]*u_t*u_x**2*u_tt - 6*df[:, 4]*u_t**2*u_x*u_xt
             u_ttttt = -df[:, 1]*u_xtttt - 3*df[:, 3]*u_x*u_tt**2 - \
-                      df[:, 5]*u_t**4*u_x - 4*df[:, 4]*u_t**3*u_xt - \
-                      4*df[:, 2]*u_t*u_xttt - df[:, 2]*u_x*u_tttt - \
-                      6*df[:, 2]*u_tt*u_xtt - 4*df[:, 2]*u_xt*u_ttt - \
-                      6*df[:, 3]*u_t**2*u_xtt - 4*df[:, 3]*u_t*u_x*u_ttt - \
-                      12*df[:, 3]*u_t*u_tt*u_xt - 6*df[:, 4]*u_t**2*u_x*u_tt
+                df[:, 5]*u_t**4*u_x - 4*df[:, 4]*u_t**3*u_xt - \
+                4*df[:, 2]*u_t*u_xttt - df[:, 2]*u_x*u_tttt - \
+                6*df[:, 2]*u_tt*u_xtt - 4*df[:, 2]*u_xt*u_ttt - \
+                6*df[:, 3]*u_t**2*u_xtt - 4*df[:, 3]*u_t*u_x*u_ttt - \
+                12*df[:, 3]*u_t*u_tt*u_xt - 6*df[:, 4]*u_t**2*u_x*u_tt
             du_dt[:, 5] = u_ttttt
         if N >= 6:
             u_xxxxxx = du_dx[:, 6]
             u_xxxxxt = -15*df[:, 3]*u_xx**3 - 10*df[:, 2]*u_xxx**2 - \
-                       df[:, 6]*u_x**6 - df[:, 1]*u_xxxxxx - \
-                       20*df[:, 4]*u_x**3*u_xxx - 6*df[:, 2]*u_x*u_xxxxx - \
-                       15*df[:, 2]*u_xx*u_xxxx - 15*df[:, 3]*u_x**2*u_xxxx - \
-                       15*df[:, 5]*u_x**4*u_xx - 45*df[:, 4]*u_x**2*u_xx**2 - \
-                       60*df[:, 3]*u_x*u_xx*u_xxx
+                df[:, 6]*u_x**6 - df[:, 1]*u_xxxxxx - \
+                20*df[:, 4]*u_x**3*u_xxx - 6*df[:, 2]*u_x*u_xxxxx - \
+                15*df[:, 2]*u_xx*u_xxxx - 15*df[:, 3]*u_x**2*u_xxxx - \
+                15*df[:, 5]*u_x**4*u_xx - 45*df[:, 4]*u_x**2*u_xx**2 - \
+                60*df[:, 3]*u_x*u_xx*u_xxx
             u_xxxxtt = -df[:, 1]*u_xxxxxt - df[:, 2]*u_t*u_xxxxx - \
-                       5*df[:, 2]*u_x*u_xxxxt - 5*df[:, 2]*u_xt*u_xxxx - \
-                       10*df[:, 2]*u_xx*u_xxxt - 10*df[:, 2]*u_xxt*u_xxx - \
-                       10*df[:, 3]*u_x**2*u_xxxt - df[:, 6]*u_t*u_x**5 - \
-                       15*df[:, 3]*u_xt*u_xx**2 - 5*df[:, 5]*u_x**4*u_xt - \
-                       10*df[:, 4]*u_x**3*u_xxt - 10*df[:, 5]*u_t*u_x**3*u_xx -\
-                       5*df[:, 3]*u_t*u_x*u_xxxx - 10*df[:, 3]*u_t*u_xx*u_xxx -\
-                       20*df[:, 3]*u_x*u_xt*u_xxx - \
-                       30*df[:, 3]*u_x*u_xx*u_xxt - \
-                       10*df[:, 4]*u_t*u_x**2*u_xxx - \
-                       30*df[:, 4]*u_x**2*u_xt*u_xx - \
-                       15*df[:, 4]*u_t*u_x*u_xx**2
+                5*df[:, 2]*u_x*u_xxxxt - 5*df[:, 2]*u_xt*u_xxxx - \
+                10*df[:, 2]*u_xx*u_xxxt - 10*df[:, 2]*u_xxt*u_xxx - \
+                10*df[:, 3]*u_x**2*u_xxxt - df[:, 6]*u_t*u_x**5 - \
+                15*df[:, 3]*u_xt*u_xx**2 - 5*df[:, 5]*u_x**4*u_xt - \
+                10*df[:, 4]*u_x**3*u_xxt - 10*df[:, 5]*u_t*u_x**3*u_xx -\
+                5*df[:, 3]*u_t*u_x*u_xxxx - 10*df[:, 3]*u_t*u_xx*u_xxx -\
+                20*df[:, 3]*u_x*u_xt*u_xxx - \
+                30*df[:, 3]*u_x*u_xx*u_xxt - \
+                10*df[:, 4]*u_t*u_x**2*u_xxx - \
+                30*df[:, 4]*u_x**2*u_xt*u_xx - \
+                15*df[:, 4]*u_t*u_x*u_xx**2
             u_xxxttt = -6*df[:, 2]*u_xxt**2 - df[:, 1]*u_xxxxtt - \
-                       2*df[:, 2]*u_t*u_xxxxt - 4*df[:, 2]*u_x*u_xxxtt - \
-                       df[:, 2]*u_tt*u_xxxx - 8*df[:, 2]*u_xt*u_xxxt - \
-                       6*df[:, 2]*u_xx*u_xxtt - 4*df[:, 2]*u_xtt*u_xxx - \
-                       6*df[:, 3]*u_x**2*u_xxtt - df[:, 3]*u_t**2*u_xxxx - \
-                       3*df[:, 3]*u_tt*u_xx**2 - 12*df[:, 3]*u_xt**2*u_xx - \
-                       df[:, 5]*u_x**4*u_tt - 3*df[:, 4]*u_t**2*u_xx**2 - \
-                       12*df[:, 4]*u_x**2*u_xt**2 - df[:, 6]*u_t**2*u_x**4 - \
-                       4*df[:, 4]*u_x**3*u_xtt - 8*df[:, 5]*u_t*u_x**3*u_xt - \
-                       8*df[:, 3]*u_t*u_x*u_xxxt - 8*df[:, 3]*u_t*u_xt*u_xxx - \
-                       12*df[:, 3]*u_t*u_xx*u_xxt - 4*df[:, 3]*u_x*u_tt*u_xxx -\
-                       24*df[:, 3]*u_x*u_xt*u_xxt - \
-                       12*df[:, 3]*u_x*u_xx*u_xtt - \
-                       12*df[:, 4]*u_t*u_x**2*u_xxt - \
-                       6*df[:, 4]*u_x**2*u_tt*u_xx - \
-                       4*df[:, 4]*u_t**2*u_x*u_xxx - \
-                       6*df[:, 5]*u_t**2*u_x**2*u_xx - \
-                       24*df[:, 4]*u_t*u_x*u_xt*u_xx
+                2*df[:, 2]*u_t*u_xxxxt - 4*df[:, 2]*u_x*u_xxxtt - \
+                df[:, 2]*u_tt*u_xxxx - 8*df[:, 2]*u_xt*u_xxxt - \
+                6*df[:, 2]*u_xx*u_xxtt - 4*df[:, 2]*u_xtt*u_xxx - \
+                6*df[:, 3]*u_x**2*u_xxtt - df[:, 3]*u_t**2*u_xxxx - \
+                3*df[:, 3]*u_tt*u_xx**2 - 12*df[:, 3]*u_xt**2*u_xx - \
+                df[:, 5]*u_x**4*u_tt - 3*df[:, 4]*u_t**2*u_xx**2 - \
+                12*df[:, 4]*u_x**2*u_xt**2 - df[:, 6]*u_t**2*u_x**4 - \
+                4*df[:, 4]*u_x**3*u_xtt - 8*df[:, 5]*u_t*u_x**3*u_xt - \
+                8*df[:, 3]*u_t*u_x*u_xxxt - 8*df[:, 3]*u_t*u_xt*u_xxx - \
+                12*df[:, 3]*u_t*u_xx*u_xxt - 4*df[:, 3]*u_x*u_tt*u_xxx -\
+                24*df[:, 3]*u_x*u_xt*u_xxt - \
+                12*df[:, 3]*u_x*u_xx*u_xtt - \
+                12*df[:, 4]*u_t*u_x**2*u_xxt - \
+                6*df[:, 4]*u_x**2*u_tt*u_xx - \
+                4*df[:, 4]*u_t**2*u_x*u_xxx - \
+                6*df[:, 5]*u_t**2*u_x**2*u_xx - \
+                24*df[:, 4]*u_t*u_x*u_xt*u_xx
             u_xxtttt = -6*df[:, 3]*u_xt**3 - df[:, 1]*u_xxxttt - \
-                       3*df[:, 3]*u_x**2*u_xttt - 3*df[:, 3]*u_t**2*u_xxxt - \
-                       df[:, 6]*u_t**3*u_x**3 - df[:, 4]*u_x**3*u_ttt - \
-                       df[:, 4]*u_t**3*u_xxx - 3*df[:, 2]*u_t*u_xxxtt - \
-                       3*df[:, 2]*u_x*u_xxttt - 3*df[:, 2]*u_tt*u_xxxt - \
-                       9*df[:, 2]*u_xt*u_xxtt - 3*df[:, 2]*u_xx*u_xttt - \
-                       df[:, 2]*u_ttt*u_xxx - 9*df[:, 2]*u_xtt*u_xxt - \
-                       3*df[:, 5]*u_t**3*u_x*u_xx - 9*df[:, 3]*u_t*u_x*u_xxtt -\
-                       3*df[:, 3]*u_t*u_tt*u_xxx - 18*df[:, 3]*u_t*u_xt*u_xxt -\
-                       9*df[:, 3]*u_t*u_xx*u_xtt - 9*df[:, 3]*u_x*u_tt*u_xxt - \
-                       18*df[:, 3]*u_x*u_xt*u_xtt - 3*df[:, 3]*u_x*u_xx*u_ttt -\
-                       9*df[:, 3]*u_tt*u_xt*u_xx - \
-                       9*df[:, 4]*u_t*u_x**2*u_xtt - \
-                       9*df[:, 4]*u_x**2*u_tt*u_xt - \
-                       9*df[:, 4]*u_t**2*u_x*u_xxt - \
-                       9*df[:, 4]*u_t**2*u_xt*u_xx - \
-                       9*df[:, 5]*u_t**2*u_x**2*u_xt - \
-                       18*df[:, 4]*u_t*u_x*u_xt**2 - \
-                       3*df[:, 5]*u_t*u_x**3*u_tt - \
-                       9*df[:, 4]*u_t*u_x*u_tt*u_xx
+                3*df[:, 3]*u_x**2*u_xttt - 3*df[:, 3]*u_t**2*u_xxxt - \
+                df[:, 6]*u_t**3*u_x**3 - df[:, 4]*u_x**3*u_ttt - \
+                df[:, 4]*u_t**3*u_xxx - 3*df[:, 2]*u_t*u_xxxtt - \
+                3*df[:, 2]*u_x*u_xxttt - 3*df[:, 2]*u_tt*u_xxxt - \
+                9*df[:, 2]*u_xt*u_xxtt - 3*df[:, 2]*u_xx*u_xttt - \
+                df[:, 2]*u_ttt*u_xxx - 9*df[:, 2]*u_xtt*u_xxt - \
+                3*df[:, 5]*u_t**3*u_x*u_xx - 9*df[:, 3]*u_t*u_x*u_xxtt -\
+                3*df[:, 3]*u_t*u_tt*u_xxx - 18*df[:, 3]*u_t*u_xt*u_xxt -\
+                9*df[:, 3]*u_t*u_xx*u_xtt - 9*df[:, 3]*u_x*u_tt*u_xxt - \
+                18*df[:, 3]*u_x*u_xt*u_xtt - 3*df[:, 3]*u_x*u_xx*u_ttt -\
+                9*df[:, 3]*u_tt*u_xt*u_xx - \
+                9*df[:, 4]*u_t*u_x**2*u_xtt - \
+                9*df[:, 4]*u_x**2*u_tt*u_xt - \
+                9*df[:, 4]*u_t**2*u_x*u_xxt - \
+                9*df[:, 4]*u_t**2*u_xt*u_xx - \
+                9*df[:, 5]*u_t**2*u_x**2*u_xt - \
+                18*df[:, 4]*u_t*u_x*u_xt**2 - \
+                3*df[:, 5]*u_t*u_x**3*u_tt - \
+                9*df[:, 4]*u_t*u_x*u_tt*u_xx
             u_xttttt = -6*df[:, 2]*u_xtt**2 - df[:, 1]*u_xxtttt - \
-                       df[:, 3]*u_x**2*u_tttt - 6*df[:, 3]*u_t**2*u_xxtt - \
-                       12*df[:, 3]*u_tt*u_xt**2 - 3*df[:, 3]*u_tt**2*u_xx - \
-                       df[:, 5]*u_t**4*u_xx - 12*df[:, 4]*u_t**2*u_xt**2 - \
-                       3*df[:, 4]*u_x**2*u_tt**2 - df[:, 6]*u_t**4*u_x**2 - \
-                       4*df[:, 4]*u_t**3*u_xxt - 4*df[:, 2]*u_t*u_xxttt - \
-                       2*df[:, 2]*u_x*u_xtttt - 6*df[:, 2]*u_tt*u_xxtt - \
-                       8*df[:, 2]*u_xt*u_xttt - df[:, 2]*u_xx*u_tttt - \
-                       4*df[:, 2]*u_ttt*u_xxt - 8*df[:, 5]*u_t**3*u_x*u_xt - \
-                       8*df[:, 3]*u_t*u_x*u_xttt - 12*df[:, 3]*u_t*u_tt*u_xxt -\
-                       24*df[:, 3]*u_t*u_xt*u_xtt - 4*df[:, 3]*u_t*u_xx*u_ttt -\
-                       12*df[:, 3]*u_x*u_tt*u_xtt - 8*df[:, 3]*u_x*u_xt*u_ttt -\
-                       4*df[:, 4]*u_t*u_x**2*u_ttt - \
-                       12*df[:, 4]*u_t**2*u_x*u_xtt - \
-                       6*df[:, 4]*u_t**2*u_tt*u_xx - \
-                       6*df[:, 5]*u_t**2*u_x**2*u_tt - \
-                       24*df[:, 4]*u_t*u_x*u_tt*u_xt
+                df[:, 3]*u_x**2*u_tttt - 6*df[:, 3]*u_t**2*u_xxtt - \
+                12*df[:, 3]*u_tt*u_xt**2 - 3*df[:, 3]*u_tt**2*u_xx - \
+                df[:, 5]*u_t**4*u_xx - 12*df[:, 4]*u_t**2*u_xt**2 - \
+                3*df[:, 4]*u_x**2*u_tt**2 - df[:, 6]*u_t**4*u_x**2 - \
+                4*df[:, 4]*u_t**3*u_xxt - 4*df[:, 2]*u_t*u_xxttt - \
+                2*df[:, 2]*u_x*u_xtttt - 6*df[:, 2]*u_tt*u_xxtt - \
+                8*df[:, 2]*u_xt*u_xttt - df[:, 2]*u_xx*u_tttt - \
+                4*df[:, 2]*u_ttt*u_xxt - 8*df[:, 5]*u_t**3*u_x*u_xt - \
+                8*df[:, 3]*u_t*u_x*u_xttt - 12*df[:, 3]*u_t*u_tt*u_xxt -\
+                24*df[:, 3]*u_t*u_xt*u_xtt - 4*df[:, 3]*u_t*u_xx*u_ttt -\
+                12*df[:, 3]*u_x*u_tt*u_xtt - 8*df[:, 3]*u_x*u_xt*u_ttt -\
+                4*df[:, 4]*u_t*u_x**2*u_ttt - \
+                12*df[:, 4]*u_t**2*u_x*u_xtt - \
+                6*df[:, 4]*u_t**2*u_tt*u_xx - \
+                6*df[:, 5]*u_t**2*u_x**2*u_tt - \
+                24*df[:, 4]*u_t*u_x*u_tt*u_xt
             u_tttttt = -df[:, 1]*u_xttttt - 10*df[:, 3]*u_t**2*u_xttt - \
-                       df[:, 6]*u_t**5*u_x - 15*df[:, 3]*u_tt**2*u_xt - \
-                       5*df[:, 5]*u_t**4*u_xt - 10*df[:, 4]*u_t**3*u_xtt - \
-                       5*df[:, 2]*u_t*u_xtttt - df[:, 2]*u_x*u_ttttt - \
-                       10*df[:, 2]*u_tt*u_xttt - 5*df[:, 2]*u_xt*u_tttt - \
-                       10*df[:, 2]*u_ttt*u_xtt - 10*df[:, 4]*u_t**2*u_x*u_ttt -\
-                       30*df[:, 4]*u_t**2*u_tt*u_xt - \
-                       15*df[:, 4]*u_t*u_x*u_tt**2 - \
-                       10*df[:, 5]*u_t**3*u_x*u_tt  - \
-                       5*df[:, 3]*u_t*u_x*u_tttt - 30*df[:, 3]*u_t*u_tt*u_xtt -\
-                       20*df[:, 3]*u_t*u_xt*u_ttt - 10*df[:, 3]*u_x*u_tt*u_ttt
+                df[:, 6]*u_t**5*u_x - 15*df[:, 3]*u_tt**2*u_xt - \
+                5*df[:, 5]*u_t**4*u_xt - 10*df[:, 4]*u_t**3*u_xtt - \
+                5*df[:, 2]*u_t*u_xtttt - df[:, 2]*u_x*u_ttttt - \
+                10*df[:, 2]*u_tt*u_xttt - 5*df[:, 2]*u_xt*u_tttt - \
+                10*df[:, 2]*u_ttt*u_xtt - 10*df[:, 4]*u_t**2*u_x*u_ttt -\
+                30*df[:, 4]*u_t**2*u_tt*u_xt - \
+                15*df[:, 4]*u_t*u_x*u_tt**2 - \
+                10*df[:, 5]*u_t**3*u_x*u_tt - \
+                5*df[:, 3]*u_t*u_x*u_tttt - 30*df[:, 3]*u_t*u_tt*u_xtt -\
+                20*df[:, 3]*u_t*u_xt*u_ttt - 10*df[:, 3]*u_x*u_tt*u_ttt
             du_dt[:, 6] = u_tttttt
         if N not in range(1, 7):
-            raise NotImplementedError("Cauchy Kovalevskaya is only " + \
+            raise NotImplementedError("Cauchy Kovalevskaya is only " +
                                       "implemented for N <= 6.")
         return du_dt
+
 
 class LinearScalar(Equation):
 
@@ -232,11 +234,12 @@ class LinearScalar(Equation):
             du_dt[:, k] = (-self.a)**k*du_dx[:, k]
         return du_dt
 
+
 class LinearGasDynamics(Equation):
 
     def __init__(self, a=1.0, rho_0=1.0):
-        if  a <= 0.0 or rho_0 <= 0.0:
-            raise NotImplementedError("a and rho_0 should be bigger than " + \
+        if a <= 0.0 or rho_0 <= 0.0:
+            raise NotImplementedError("a and rho_0 should be bigger than " +
                                       "0 in linear gas dynamics equations.")
         self.a = a
         self.rho_0 = rho_0
@@ -252,7 +255,7 @@ class LinearGasDynamics(Equation):
         elif k == 1:
             return self.A
         else:
-            raise NotImplementedError("higher order derivatives are not " + \
+            raise NotImplementedError("higher order derivatives are not " +
                                       "implemented for systems")
 
     def eigenvalues(self, U):
@@ -266,6 +269,7 @@ class LinearGasDynamics(Equation):
         U_star = 0.5*np.array([rho_R + rho_L + self.rho_0/self.a*(v_L - v_R),
                                v_R + v_L + self.a/self.rho_0*(rho_L - rho_R)])
         return U_star
+
 
 class Burgers(Equation):
 
@@ -308,16 +312,17 @@ class Burgers(Equation):
             else:
                 return u_R
 
+
 class Traffic(Equation):
 
     def __init__(self, rho_max=1.0, v_max=1.0):
         if rho_max <= 0.0 or v_max <= 0.0:
-            raise NotImplementedError("rho_max and v_max should be bigger " + \
+            raise NotImplementedError("rho_max and v_max should be bigger " +
                                       "than 0 in traffic flow equation.")
         self.rho_max = rho_max
         self.v_max = v_max
         super().__init__("traffic flow equation", 1)
-    
+
     def flux(self, u):
         return np.array([u*(1 - u/self.rho_max)*self.v_max])
 
@@ -353,6 +358,7 @@ class Traffic(Equation):
                 return 1/2*self.rho_max
             else:
                 return u_R
+
 
 class Cubic(Equation):
 
@@ -406,9 +412,10 @@ class Cubic(Equation):
                 # rarefaction wave
                 return u_L
         else:
-            raise ValueError("u_L and u_R should have the same sign. " + \
-                             "Otherwise the flux is neither convex nor " + \
+            raise ValueError("u_L and u_R should have the same sign. " +
+                             "Otherwise the flux is neither convex nor " +
                              "concave.")
+
 
 class ShallowWater(Equation):
 
@@ -445,7 +452,7 @@ class ShallowWater(Equation):
             return np.array([[0.0, 1.0],
                              [self.g * h - v**2, 2 * v]])
         else:
-            raise NotImplementedError("higher order derivatives are not " + \
+            raise NotImplementedError("higher order derivatives are not " +
                                       "implemented for systems")
 
     def eigenvalues(self, U):
@@ -453,6 +460,7 @@ class ShallowWater(Equation):
         h, v = Q[0], Q[1]
         a = self.wave_speed(h)
         return np.array([v - a, v + a])
+
 
 class Euler(Equation):
 
@@ -475,12 +483,12 @@ class Euler(Equation):
         return p
 
     def prim2cons(self, Q):
-        rho, v, p = Q[0], Q[1], Q[2]
+        rho, v, _ = Q[0], Q[1], Q[2]
         E = self.total_energy(Q)
         return np.array([rho, rho * v, E])
 
     def cons2prim(self, U):
-        rho, rho_v, E = U[0], U[1], U[2]
+        rho, rho_v, _ = U[0], U[1], U[2]
         v = rho_v / rho
         p = self.pressure(U)
         return np.array([rho, v, p])
@@ -488,7 +496,7 @@ class Euler(Equation):
     def sound_speed(self, rho, p):
         a = np.sqrt(self.gamma * p / rho)
         return a
-        
+
     def specific_enthalpy(self, rho, p):
         e = self.internal_energy(rho, p)
         h = e + p / rho
@@ -521,7 +529,7 @@ class Euler(Equation):
                              [0.5*(g-3.0)*v**2, (3.0-g)*v, g - 1],
                              [0.5*(g-1.0)*v**3 - v*H, -(g-1.0)*v**2 + H, g*v]])
         else:
-            raise NotImplementedError("higher order derivatives are not " + \
+            raise NotImplementedError("higher order derivatives are not " +
                                       "implemented for systems")
 
     def eigenvalues(self, U):
