@@ -100,6 +100,5 @@ class Problem:
             else:
                 F_L = self.numerical_flux(u[:, j_m], u[:, j])
                 F_R = self.numerical_flux(u[:, j], u[:, j_p])
-            #print(F_R - F_L)
             u_new[:, j] = u[:, j] - dt/dx*(F_R - F_L)
         return u_new, dt

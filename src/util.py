@@ -34,11 +34,11 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
     for i in range(m):
         ax = plt.subplot(1, m, i + 1)
         for key, u in sols.items():
-            name = "u"
+            name = "U"
             if prim:
                 try:
                     u = problems[key].equation.cons2prim(u)
-                    name = "prim"
+                    name = "Q"
                 except:
                     pass
                     #print("No primitive variables defined. Plot conservative.")

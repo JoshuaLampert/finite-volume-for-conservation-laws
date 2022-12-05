@@ -410,6 +410,50 @@ class Cubic(Equation):
                              "Otherwise the flux is neither convex nor " + \
                              "concave.")
 
+class ShallowWater(Equation):
+
+    def __init__(self, g):
+        selg.g = g
+        super().__init__("Shallow water equations", 2)
+
+    def prim2cons(self, Q):
+        h, v = Q[0], Q[1]
+        return np.array([h, h * v])
+
+    def cons2prim(self, U):
+        h, h_v = U[0], U[1]
+        v = h_v / h
+        return np.array([h, v])
+
+    def wave_speed(self, h):
+        a = np.sqrt(self.g * h)
+        return a
+
+    def flux_prim(self, Q):
+        h, v = Q[0], Q[1]
+        return np.array([h * v, h * v**2 + 0.5*self.g * h**2])
+
+    def flux(self, U):
+        return np.array([U[1], U[1]**2 / U[0] + 0.5 * self.g * U[0]**2])
+
+    def flux_derivative(self, U, k=1):
+        if k == 0:
+            return self.flux(U)
+        elif k == 1:
+            Q = self.cons2prim(U)
+            h, v = Q[0], Q[1]
+            return np.array([[0.0, 1.0],
+                             [self.g * h - v**2, 2 * v]])
+        else:
+            raise NotImplementedError("higher order derivatives are not " + \
+                                      "implemented for systems")
+
+    def eigenvalues(self, U):
+        Q = self.cons2prim(U)
+        h, v = Q[0], Q[1]
+        a = self.wave_speed(h)
+        return np.array([v - a, v + a])
+
 class Euler(Equation):
 
     def __init__(self, gamma):
@@ -478,7 +522,7 @@ class Euler(Equation):
                              [0.5*(g-1.0)*v**3 - v*H, -(g-1.0)*v**2 + H, g*v]])
         else:
             raise NotImplementedError("higher order derivatives are not " + \
-                                      "implemented) for systems")
+                                      "implemented for systems")
 
     def eigenvalues(self, U):
         Q = self.cons2prim(U)

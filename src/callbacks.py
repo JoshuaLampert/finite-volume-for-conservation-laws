@@ -29,13 +29,13 @@ class PlotCallback(Callback):
         plt.ion()
         fig = plt.figure(1)
         plt.clf()
-        name = "u"
+        name = "U"
         if callable(self.analytic_sol):
             u_analytic = np.stack(self.analytic_sol(x, t)).T
         if self.prim:
             try:
                 u = self.equation.cons2prim(u)
-                name = "prim"
+                name = "Q"
                 if callable(self.analytic_sol):
                     u_analytic = self.equation.cons2prim(u_analytic)
             except:
