@@ -413,7 +413,7 @@ class Cubic(Equation):
 class ShallowWater(Equation):
 
     def __init__(self, g):
-        selg.g = g
+        self.g = g
         super().__init__("Shallow water equations", 2)
 
     def prim2cons(self, Q):
