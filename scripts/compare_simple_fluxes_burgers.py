@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import Burgers
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import Burgers
+    from src.problem import Problem
+    from src.util import plot_sols
+
     equation = Burgers()
     t_end = 5.0
     Nx, xmin, xmax = 100, -2.0, 2.0
@@ -37,7 +40,7 @@ if __name__ == "__main__":
     bc = "transparent"
     ylim = [[-1.0, 1.0]]
     callbacks = [PlotCallback(ylim=ylim)]
-    callbacks = []
+    # callbacks = []
     problems = {}
     for num_flux in ['rusanov', 'LxW', 'godunov', 'roe']:
         problem = Problem(Nx, xmin, xmax, t_end, equation=equation,

@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import LinearGasDynamics
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import LinearGasDynamics
+    from src.problem import Problem
+    from src.util import plot_sols
+
     a, rho_0 = 1.0, 1.0
     equation = LinearGasDynamics(a, rho_0)
     t_end = 1.0
@@ -43,7 +46,7 @@ if __name__ == "__main__":
                           callbacks=callbacks)
         problems[num_flux] = problem
 
-    def ana_sol(x): sol(x, t_end)
+    def ana_sol(x): return sol(x, t_end)
     plot_sols(problems, u0,
               title="{} with initial data {} at time {}".format(equation.name,
                                                                 u0.__name__,

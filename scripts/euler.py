@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import Euler
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import Euler
+    from src.problem import Problem
+    from src.util import plot_sols
+
     case = 4
     if case == 0:
         gamma = 1.4

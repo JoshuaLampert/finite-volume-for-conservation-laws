@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import ShallowWater
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import ShallowWater
+    from src.problem import Problem
+    from src.util import plot_sols
+
     g = 1.0
     equation = ShallowWater(g)
     Nx, xmin, xmax = 100, -1.0, 1.0

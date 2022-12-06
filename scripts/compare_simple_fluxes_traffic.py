@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import Traffic
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import Traffic
+    from src.problem import Problem
+    from src.util import plot_sols
+
     equation = Traffic()
     t_end = 1.0
     Nx, xmin, xmax = 100, -2.0, 2.0

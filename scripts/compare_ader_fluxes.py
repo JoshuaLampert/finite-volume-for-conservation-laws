@@ -1,11 +1,14 @@
 import numpy as np
 
-from src.callbacks import PlotCallback
-from src.equations import Burgers, LinearScalar
-from src.problem import Problem
-from src.util import plot_sols
-
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append(".")
+    from src.callbacks import PlotCallback
+    from src.equations import Burgers
+    from src.problem import Problem
+    from src.util import plot_sols
+
     a = 1.0
     # equation = LinearScalar()
     equation = Burgers()
@@ -61,7 +64,7 @@ if __name__ == "__main__":
                                Nt_max=int(1e9), N_gl=N_gl, callbacks=callbacks)
         problems["ADER" + str(N)] = problem_ader
     if callable(sol):
-        def analytic_sol(x): sol(x, t=t_end)
+        def analytic_sol(x): return sol(x, t=t_end)
     else:
         analytic_sol = None
     plot_sols(problems, g,
