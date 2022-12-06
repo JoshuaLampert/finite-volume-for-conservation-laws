@@ -3,7 +3,7 @@ import numpy as np
 if __name__ == "__main__":
     import sys
 
-    sys.path.append(".")
+    sys.path.append("..")
     from src.callbacks import PlotCallback
     from src.equations import ShallowWater
     from src.problem import Problem
