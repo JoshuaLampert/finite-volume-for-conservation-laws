@@ -417,6 +417,38 @@ class Cubic(Equation):
                              "concave.")
 
 
+class NonlinearSystem(Equation):
+
+    def __init__(self):
+        super().__init__("nonlinear system", 2)
+
+    def flux(self, Q):
+        u, v = Q[0], Q[1]
+        return np.array([v / u**2, v**2 / u**3])
+
+    def flux_derivative(self, Q, k=1):
+        if k == 0:
+            return self.flux(Q)
+        elif k == 1:
+            u, v = Q[0], Q[1]
+            return np.array([[-2*v / u**3, 1 / u**2],
+                             [-3*v**2 / u**4, 2*v / u**3]])
+        else:
+            raise NotImplementedError("higher order derivatives are not " +
+                                      "implemented for systems")
+
+    def eigenvalues(self, Q):
+        u, v = Q[0], Q[1]
+        return np.array([-v / u**3, v / u**3])
+
+    def godunov_state(self, Q_L, Q_R):
+        u_L, v_L = Q_L[0], Q_L[1]
+        u_R, v_R = Q_R[0], Q_R[1]
+        u_star = u_R * np.sqrt(v_L / u_L * u_R / v_R)
+        v_star = v_L / u_L * u_star
+        return np.array([u_star, v_star])
+
+
 class ShallowWater(Equation):
 
     def __init__(self, g):
