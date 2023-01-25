@@ -24,6 +24,13 @@ class Equation:
             raise NotImplementedError("For systems the eigenvalues have to" +
                                       "be given.")
 
+    def max_eigenvalue(self, u):
+        l_max = 0.0
+        for i in range(u.shape[0]):
+            lam = np.max(np.abs(self.eigenvalues(u[i])))
+            l_max = np.maximum(l_max, lam)
+        return l_max
+
     """godunov_state is only needed for applying the Godunov method or the
     ADER flux to this equation"""
     def godunov_state(self, u_L, u_R):

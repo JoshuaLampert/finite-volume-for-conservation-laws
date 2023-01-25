@@ -22,31 +22,9 @@ class Rusanov(NumericalFlux):
         super().__init__(equation)
 
     def __call__(self, u_L, u_R):
-        S_max = 0.0
-        lambda_L = self.equation.eigenvalues(u_L)
-        lambda_R = self.equation.eigenvalues(u_R)
-        m = u_L.shape[0]
-        for i in range(m):
-            S = np.max(np.abs([lambda_L[i], lambda_R[i]]))
-            S_max = np.maximum(S_max, S)
+        l_max = self.equation.max_eigenvalue(np.array([u_L, u_R]))
         return 0.5*(self.equation.flux(u_R) + self.equation.flux(u_L) -
-                    S_max*(u_R - u_L))
-
-
-class LaxWendroff(NumericalFlux):
-
-    def __init__(self, dx, dt, equation=Burgers()):
-        self.dx = dx
-        self.dt = dt
-        super().__init__(equation)
-
-    def __call__(self, u_L, u_R):
-        dt = self.dt
-        dx = self.dx
-        flux = self.equation.flux
-        A = self.equation.flux_derivative(0.5*(u_L + u_R))
-        return 0.5*(flux(u_R) + flux(u_L) -
-                    dt/dx*A @ (flux(u_R) - flux(u_L)))
+                    l_max*(u_R - u_L))
 
 
 class Roe(NumericalFlux):
@@ -121,10 +99,9 @@ class SpaceBase:
 
 class ADER(NumericalFlux):
 
-    def __init__(self, x, dt, dx, N=3, N_gl=8, bc="transparent",
+    def __init__(self, mesh, N=3, N_gl=8, bc="transparent",
                  equation=Burgers()):
-        self.dt = dt
-        self.dx = dx
+        self.mesh = mesh
         self.N = N
         self.N_gl = N_gl
         self.integrator = IntegratorGL(N_gl)
@@ -143,13 +120,13 @@ class ADER(NumericalFlux):
         self.du_dx_p = np.empty((u.shape[0], u.shape[1], self.N + 1))
         # compute spatial derivatives of u
         for k in range(self.N + 1):
-            self.du_dx_m[:, :, k] = 1/self.dx ** k *\
+            self.du_dx_m[:, :, k] = 1/self.mesh.spatialmesh.dx ** k *\
                                     np.sum(w_hat*self.phi_L[:, :, k, :],
                                            axis=1)
-            self.du_dx_p[:, :, k] = 1/self.dx ** k *\
+            self.du_dx_p[:, :, k] = 1/self.mesh.spatialmesh.dx ** k *\
                 np.sum(w_hat*self.phi_R[:, :, k, :], axis=1)
         # set new dt to integrator
-        self.integrator.set_bounds(0, self.dt)
+        self.integrator.set_bounds(0, self.mesh.timemesh.dt)
 
     def __call__(self, j_L, j_R):
         if self.equation.cauchy_kovalevskaya is None:
@@ -179,4 +156,4 @@ class ADER(NumericalFlux):
             u_taylor = np.sum(du_dt * tau**zero_N / special.factorial(zero_N),
                               axis=1)
             return self.equation.flux(u_taylor)
-        return 1/self.dt * self.integrator.integrate(f_u)
+        return 1/self.mesh.timemesh.dt * self.integrator.integrate(f_u)

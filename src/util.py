@@ -24,6 +24,14 @@ def boundary_condition(j, Nx, bc="periodic"):
             bc) + " Implemented are 'periodic' and 'transparent'.")
 
 
+def contains_stepsize_callback(callbacks):
+    from .callbacks import StepsizeCallback
+    for callback in callbacks:
+        if isinstance(callback, StepsizeCallback):
+            return True
+    return False
+
+
 def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
               prim=True):
     sols = {}
@@ -47,7 +55,8 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
                     # print("No primitive variables defined. Plot " +
                     # "conservative.")
             # ax.plot(problems[key].x, u[i, :], label=key)
-            ax.scatter(problems[key].x, u[i, :], s=10, label=key)
+            ax.scatter(problems[key].mesh.spatialmesh.x, u[i, :], s=10,
+                       label=key)
             ax.set(xlabel="x", ylabel="{}[{}]".format(name, i),
                    title="{}[{}]".format(name, i))
             if ylim is not None:
@@ -55,7 +64,7 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
         if analytic_sol is not None:
             if callable(analytic_sol):
                 sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
-                x = problems[key].x
+                x = problems[key].mesh.spatialmesh.x
                 u = np.stack(sol(x)).T
                 if prim:
                     try:
@@ -99,10 +108,10 @@ def plot_order(problems, g, analytic_sol, Nxs=16*2**np.arange(5),
             u = problem.solve(g)[-1]
             end = time.time()
             print("finished {} for Nx={} in {} s".format(key, Nx, end - start))
-            def u_ana(x): analytic_sol(x, problem.t_end)
+            u_ana = lambda x: analytic_sol(x, problem.mesh.timemesh.t_end)
             u_ana_vec = np.empty((u.shape[0], Nx))
-            x = problem.x
-            dx = problem.dx
+            x = problem.mesh.spatialmesh.x
+            dx = problem.mesh.spatialmesh.dx
             for j in range(Nx):
                 u_ana_vec[:, j] = integrate_gl(u_ana, x[j] - dx/2, x[j] + dx/2)
                 u_ana_vec[:, j] /= dx

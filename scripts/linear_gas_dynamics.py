@@ -4,7 +4,8 @@ if __name__ == "__main__":
     import sys
 
     sys.path.append("..")
-    from src.callbacks import PlotCallback
+    from src.mesh import Mesh
+    from src.callbacks import StepsizeCallback, PlotCallback
     from src.equations import LinearGasDynamics
     from src.problem import Problem
     from src.util import plot_sols
@@ -12,7 +13,8 @@ if __name__ == "__main__":
     a, rho_0 = 1.0, 1.0
     equation = LinearGasDynamics(a, rho_0)
     t_end = 1.0
-    Nx, xmin, xmax = 100, -2.0, 2.0
+    xmin, xmax, Nx = -2.0, 2.0, 100
+    mesh = Mesh(xmin, xmax, 0.0, t_end, Nx, dt=1.0)
     CFL = 0.95
 
     def g(x):
@@ -37,12 +39,13 @@ if __name__ == "__main__":
                          0.5*(h(x + a*t) + h(x - a*t))])
     bc = "transparent"
     ylim = [[-0.2, 0.6], [-0.5, 0.5]]
-    callbacks = [PlotCallback(ylim=ylim, analytic_sol=sol)]
-    # callbacks = []
+    callbacks = [StepsizeCallback(equation, mesh, CFL=CFL),
+                 PlotCallback(equation, ylim=ylim, analytic_sol=sol)]
+    # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
-    for num_flux in ["rusanov", "LxW", "godunov"]:
-        problem = Problem(Nx, xmin, xmax, t_end, equation=equation,
-                          bc=bc, numerical_flux=num_flux, CFL=CFL,
+    for num_flux in ["rusanov", "godunov"]:
+        problem = Problem(mesh, equation=equation,
+                          bc=bc, numerical_flux=num_flux,
                           callbacks=callbacks)
         problems[num_flux] = problem
 

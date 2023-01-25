@@ -7,6 +7,9 @@ class Callback:
     def __init__(self):
         pass
 
+    def on_step_begin(self, x, u, t):
+        raise NotImplementedError()
+
     def on_step_end(self, x, u, t):
         raise NotImplementedError()
 
@@ -16,7 +19,7 @@ class Callback:
 
 class PlotCallback(Callback):
 
-    def __init__(self, ylim=None, analytic_sol=None, equation=None, prim=True):
+    def __init__(self, equation, ylim=None, analytic_sol=None, prim=True):
         super().__init__()
         self.ylim = ylim
         if analytic_sol is not None:
@@ -26,8 +29,11 @@ class PlotCallback(Callback):
         self.equation = equation
         self.prim = prim
 
+    def on_step_begin(self, x, u, t):
+        pass
+
     def on_step_end(self, x, u, t):
-        m = u.shape[0]
+        m = self.equation.m
         plt.ion()
         fig = plt.figure(1)
         plt.clf()
@@ -74,6 +80,9 @@ class ErrorCallback(Callback):
         self.errors = []
         self.ts = []
 
+    def on_step_begin(self, x, u, t):
+        pass
+
     def on_step_end(self, x, u, t):
         u_analytic = np.stack(self.analytic_sol(x, t)).T
         self.errors.append(np.linalg.norm(u - u_analytic, self.error_type))
@@ -87,3 +96,22 @@ class ErrorCallback(Callback):
         plt.ylabel("log(error)")
         plt.legend()
         plt.show()
+
+class StepsizeCallback(Callback):
+
+    def __init__(self, equation, mesh, CFL=0.95):
+        self.equation = equation
+        self.mesh = mesh
+        self.CFL = CFL
+
+    def on_step_begin(self, x, u, t):
+        dx = self.mesh.spatialmesh.dx
+        l_max = self.equation.max_eigenvalue(u.T)
+        dt = self.CFL * dx / l_max
+        self.mesh.update(dt)
+
+    def on_step_end(self, x, u, t):
+        pass
+
+    def on_end(self):
+        pass

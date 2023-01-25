@@ -4,16 +4,18 @@ if __name__ == "__main__":
     import sys
 
     sys.path.append("..")
-    from src.callbacks import PlotCallback
+    from src.mesh import Mesh
+    from src.callbacks import StepsizeCallback, PlotCallback
     from src.equations import Burgers
     from src.problem import Problem
     from src.util import plot_sols
 
+    xmin, xmax, Nx = -1.0, 1.0, 100
+    t_end = 0.25
+    mesh = Mesh(xmin, xmax, 0.0, t_end, Nx, dt=1.0)
     a = 1.0
     # equation = LinearScalar()
     equation = Burgers()
-    t_end = 0.25
-    Nx, xmin, xmax = 100, -1.0, 1.0
 
     def g1(x):
         if x < 0:
@@ -54,13 +56,14 @@ if __name__ == "__main__":
     else:
         sol = None
     ylim = [[0.0, 3.0]]
-    callbacks = [PlotCallback(ylim=ylim, analytic_sol=sol)]
-    # callbacks = []
+    callbacks = [StepsizeCallback(equation, mesh, CFL=0.95),
+                 PlotCallback(equation, ylim=ylim, analytic_sol=sol)]
+    # callbacks = [StepsizeCallback(equation, mesh, CFL=0.95)]
     N_gl = 8
     problems = {}
     for N in range(1, 7):
-        problem_ader = Problem(Nx, xmin, xmax, t_end, equation=equation,
-                               bc=bc, numerical_flux='ader', N=N, CFL=0.95,
+        problem_ader = Problem(mesh, equation=equation, bc=bc,
+                               numerical_flux='ader', N=N,
                                Nt_max=int(1e9), N_gl=N_gl, callbacks=callbacks)
         problems["ADER" + str(N)] = problem_ader
     if callable(sol):

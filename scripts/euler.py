@@ -4,7 +4,8 @@ if __name__ == "__main__":
     import sys
 
     sys.path.append("..")
-    from src.callbacks import PlotCallback
+    from src.mesh import Mesh
+    from src.callbacks import StepsizeCallback, PlotCallback
     from src.equations import Euler
     from src.problem import Problem
     from src.util import plot_sols
@@ -64,16 +65,18 @@ if __name__ == "__main__":
 
     def u0(x):
         return equation.prim2cons(u0_prim(x))
-    Nx, xmin, xmax = 100, -1.0, 1.0
+    xmin, xmax, Nx = -1.0, 1.0, 100
+    mesh = Mesh(xmin, xmax, 0.0, t_end, Nx, dt=1.0)
     CFL = 0.95
 
     bc = "transparent"
-    callbacks = [PlotCallback(ylim=ylim, equation=equation)]
-    # callbacks = []
+    callbacks = [StepsizeCallback(equation, mesh, CFL=CFL),
+                 PlotCallback(equation, ylim=ylim)]
+    # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
     for num_flux in ["rusanov"]:
-        problem = Problem(Nx, xmin, xmax, t_end, equation=equation,
-                          bc=bc, numerical_flux=num_flux, CFL=CFL,
+        problem = Problem(mesh, equation=equation,
+                          bc=bc, numerical_flux=num_flux,
                           callbacks=callbacks)
         problems[num_flux] = problem
     plot_sols(problems, u0,
