@@ -551,6 +551,12 @@ class Euler(Equation):
         e = p/((self.gamma - 1) * rho)
         return e
 
+    def internal_energy_cons(self, U):
+        Q = self.cons2prim(U)
+        rho, p = Q[0], Q[2]
+        e = self.internal_energy(rho, p)
+        return e
+
     def total_energy(self, Q):
         rho, v, p = Q[0], Q[1], Q[2]
         e = self.internal_energy(rho, p)

@@ -14,7 +14,7 @@ if __name__ == "__main__":
     if case == 0:
         gamma = 1.4
         t_end = 0.2
-        ylim = [[0.0, 1.2], [-0.2, 1.0], [0.0, 1.2]]
+        ylim = [[0.0, 1.2], [-0.2, 1.0], [0.0, 1.2], [1.8, 3.0]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     elif case == 1:
         gamma = 1.4
         t_end = 0.13
-        ylim = [[0.2, 1.2], [-0.1, 1.8], [0.0, 4.0]]
+        ylim = [[0.2, 1.2], [-0.1, 1.8], [0.0, 4.0], [2.0, 22.0]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     elif case == 2:
         gamma = 5/3
         t_end = 0.4
-        ylim = [[0.0, 6.0], [-2.5, 2.5], [0.0, 8.0]]
+        ylim = [[0.0, 6.0], [-2.5, 2.5], [0.0, 8.0], [0.1, 3.0]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     elif case == 3:
         gamma = 5/3
         t_end = 0.08
-        ylim = [[0.1, 1.8], [-3.0, 3.0], [0.0, 4.5]]
+        ylim = [[0.1, 1.8], [-3.0, 3.0], [0.0, 4.5], [1.5, 4.5]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     elif case == 4:
         gamma = 1.4
         t_end = 0.47
-        ylim = [[0.0, 5.0], [-1.0, 6.0], [0.0, 15.0]]
+        ylim = [[0.0, 5.0], [-1.0, 6.0], [0.0, 15.0], [2.0, 7.5]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -71,7 +71,9 @@ if __name__ == "__main__":
 
     bc = "transparent"
     callbacks = [StepsizeCallback(equation, mesh, CFL=CFL),
-                 PlotCallback(equation, ylim=ylim)]
+                 PlotCallback(equation,
+                              additional_plots=[equation.internal_energy_cons],
+                              ylim=ylim)]
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
     for num_flux in ["rusanov"]:
@@ -82,4 +84,5 @@ if __name__ == "__main__":
               title="{} with initial data {} at time {}".format(equation.name,
                                                                 u0.__name__,
                                                                 t_end),
+              additional_plots=[equation.internal_energy_cons],
               ylim=ylim, save=False)

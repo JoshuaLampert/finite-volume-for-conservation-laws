@@ -59,8 +59,8 @@ def get_numerical_flux(numerical_flux, equation=Burgers(),
                                   ", 'godunov', 'hll', 'eigen' and 'ader'.")
 
 
-def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
-              prim=True):
+def plot_sols(problems, g, title="", additional_plots=[], ylim=None, save=True,
+              analytic_sol=None, prim=True):
     sols = {}
     for key, problem in problems.items():
         start = time.time()
@@ -69,44 +69,58 @@ def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,
         print("solved {} in {} s".format(key, end - start))
     plt.clf()
     m = list(problems.values())[0].equation.m
-    for i in range(m):
-        ax = plt.subplot(1, m, i + 1)
-        for key, u in sols.items():
+    num_plots = m + len(additional_plots)
+    for key, u in sols.items():
+        x = problems[key].mesh.spatialmesh.x
+        for i in range(m):
+            ax = plt.subplot(1, num_plots, i + 1)
             name = "U"
             if prim:
                 try:
-                    u = problems[key].equation.cons2prim(u)
+                    qu = problems[key].equation.cons2prim(u)
                     name = "Q"
                 except AttributeError:
-                    pass
+                    qu = u
                     # print("No primitive variables defined. Plot " +
                     # "conservative.")
             # ax.plot(problems[key].x, u[i, :], label=key)
-            ax.scatter(problems[key].mesh.spatialmesh.x, u[i, :], s=10,
-                       label=key)
+            ax.scatter(x, qu[i, :], s=10, label=key)
+            ax.legend()
             ax.set(xlabel="x", ylabel="{}[{}]".format(name, i),
                    title="{}[{}]".format(name, i))
-            if ylim is not None:
-                ax.set(ylim=ylim[i])
+            if isinstance(ylim, list):
+                if ylim[i] is not None:
+                    ax.set(ylim=ylim[i])
         if analytic_sol is not None:
             if callable(analytic_sol):
                 sol = np.vectorize(analytic_sol, otypes=[np.ndarray])
-                x = problems[key].mesh.spatialmesh.x
                 u = np.stack(sol(x)).T
                 if prim:
                     try:
-                        u = problems[key].equation.cons2prim(u)
+                        qu = problems[key].equation.cons2prim(u)
                     except AttributeError:
-                        pass
+                        qu = u
                         # print("No primitive variables defined. Plot " + \
                         #      "conservative.")
 
                 ax = plt.subplot(1, m, i + 1)
-                ax.plot(x, u[i, :], "orange", label="analytical solution")
+                ax.plot(x, qu[i, :], "orange", label="analytical solution")
             else:
                 raise NotImplementedError("Analytical solution has to be " +
                                           "provided as callable function")
         ax.legend()
+        for i in range(len(additional_plots)):
+            func = additional_plots[i]
+            ax = plt.subplot(1, num_plots, i + m + 1)
+            ax.scatter(x, func(u), s=10, label=key)
+            if callable(analytic_sol):
+                plt.plot(x, func(u_analytic), "orange",
+                         label="analytical solution {}".format(func.__name__))
+            ax.legend()
+            ax.set(xlabel="x", ylabel=func.__name__, title=func.__name__)
+            if isinstance(ylim, list):
+                if ylim[m + i] is not None:
+                    ax.set(ylim=ylim[m + i])
     plt.suptitle(title)
     if save:
         plt.savefig(title + ".jpg")
