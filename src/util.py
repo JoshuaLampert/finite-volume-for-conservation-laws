@@ -3,6 +3,8 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 
+from .equations import Burgers
+
 
 def boundary_condition(j, Nx, bc="periodic"):
     if bc == "periodic":
@@ -30,6 +32,31 @@ def contains_stepsize_callback(callbacks):
         if isinstance(callback, StepsizeCallback):
             return True
     return False
+
+
+def get_numerical_flux(numerical_flux, equation=Burgers(),
+                       mesh=None, N=3, N_gl=8, bc="transparent"):
+    from .num_flux import NumericalFlux, Rusanov, Roe, Godunov, HLL, Eigen, ADER
+    if isinstance(numerical_flux, NumericalFlux):
+        return numerical_flux
+    elif numerical_flux.lower() == 'rusanov':
+        return Rusanov(equation)
+    elif numerical_flux.lower() == 'roe':
+        return Roe(equation)
+    elif numerical_flux.lower() == 'godunov':
+        return Godunov(equation)
+    elif numerical_flux.lower() == 'hll':
+        return HLL(equation)
+    elif numerical_flux.lower() == 'eigen':
+        return Eigen(equation)
+    elif numerical_flux.lower() == 'ader':
+        if mesh is None:
+            raise ValueError("You need to provide a mesh to use the ADER flux")
+        return ADER(mesh, equation, N, N_gl, bc)
+    else:
+        raise NotImplementedError("Unknown numerical_flux {}.".format(
+            numerical_flux) + " Implemented are 'rusanov', 'roe'" +
+                                  ", 'godunov', 'hll', 'eigen' and 'ader'.")
 
 
 def plot_sols(problems, g, title="", ylim=None, save=True, analytic_sol=None,

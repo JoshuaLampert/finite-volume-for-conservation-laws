@@ -44,9 +44,8 @@ if __name__ == "__main__":
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
     for num_flux in ["rusanov", "godunov"]:
-        problem = Problem(mesh, equation=equation,
-                          bc=bc, numerical_flux=num_flux,
-                          callbacks=callbacks)
+        problem = Problem(mesh, equation=equation, bc=bc,
+                          numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
 
     def ana_sol(x): return sol(x, t_end)

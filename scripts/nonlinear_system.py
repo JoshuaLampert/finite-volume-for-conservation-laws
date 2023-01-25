@@ -29,9 +29,8 @@ if __name__ == "__main__":
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
     for num_flux in ["rusanov", "godunov"]:
-        problem = Problem(mesh, equation=equation,
-                          bc=bc, numerical_flux=num_flux,
-                          callbacks=callbacks)
+        problem = Problem(mesh, equation=equation, bc=bc,
+                          numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
     plot_sols(problems, Q0,
               title="{} with initial data {} at time {}".format(equation.name,

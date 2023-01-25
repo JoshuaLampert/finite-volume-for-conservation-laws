@@ -4,7 +4,7 @@ from scipy import special
 
 from .equations import Burgers, LinearScalar
 from .reconstruction import WENOReconstruction
-from .util import IntegratorGL
+from .util import get_numerical_flux, IntegratorGL
 
 
 class NumericalFlux:
@@ -64,6 +64,43 @@ class Godunov(NumericalFlux):
                                       "Godunov numerical_flux.")
         return self.equation.flux(self.equation.godunov_state(u_L, u_R))
 
+class HLL(NumericalFlux):
+
+    def __init__(self, equation=Burgers()):
+        super().__init__(equation)
+
+    def __call__(self, u_L, u_R):
+        S_L, S_R = self.equation.min_max_speed(u_L, u_R)
+        if S_L >= 0:
+            return self.equation.flux(u_L)
+        elif S_R <= 0:
+            return self.equation.flux(u_R)
+        else:
+            F_L = self.equation.flux(u_L)
+            F_R = self.equation.flux(u_R)
+            F_HLL = (S_R*F_L - S_L*F_R + S_R*S_L*(u_R - u_L)) / (S_R - S_L)
+            return F_HLL
+
+class Eigen(NumericalFlux):
+
+    def __init__(self, equation=Burgers(), C=0.5, numerical_flux='rusanov'):
+        super().__init__(equation)
+        self.C = C
+        self.numerical_flux = get_numerical_flux(numerical_flux, equation)
+
+    def __call__(self, u_L, u_R):
+        l_max = self.equation.max_eigenvalue(np.array([u_L, u_R]))
+        mu = self.C/l_max
+        F_hat = self.numerical_flux(u_L, u_R)
+        u_L_hat = u_L - mu*(F_hat - self.equation.flux(u_L))
+        u_R_hat = u_R - mu*(self.equation.flux(u_R) - F_hat)
+        A_hat = self.equation.flux_derivative(0.5*(u_L_hat + u_R_hat))
+        lambda_hat, R_hat = np.linalg.eig(A_hat)
+        alpha = np.linalg.solve(R_hat, u_R - u_L)
+        u_star = 0.5*(u_L + u_R)
+        for k in range(self.equation.m):
+            u_star -= 0.5*np.sign(lambda_hat[k])*alpha[k]*R_hat[:, k]
+        return self.equation.flux(u_star)
 
 class SpaceBase:
 
@@ -99,8 +136,7 @@ class SpaceBase:
 
 class ADER(NumericalFlux):
 
-    def __init__(self, mesh, N=3, N_gl=8, bc="transparent",
-                 equation=Burgers()):
+    def __init__(self, mesh, equation=Burgers(), N=3, N_gl=8, bc="transparent"):
         self.mesh = mesh
         self.N = N
         self.N_gl = N_gl

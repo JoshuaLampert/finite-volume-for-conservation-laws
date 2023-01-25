@@ -1,8 +1,9 @@
 import numpy as np
 
 from .equations import Burgers
-from .num_flux import ADER, Godunov, NumericalFlux, Roe, Rusanov
-from .util import boundary_condition, contains_stepsize_callback, integrate_gl
+from .num_flux import ADER
+from .util import get_numerical_flux, boundary_condition
+from .util import contains_stepsize_callback, integrate_gl
 
 
 class Problem:
@@ -15,21 +16,8 @@ class Problem:
         self.bc = bc
         # number of points of Gauss-Legendre quadrature
         self.N_gl = N_gl
-        if isinstance(numerical_flux, NumericalFlux):
-            self.numerical_flux = numerical_flux
-        elif numerical_flux == 'rusanov':
-            self.numerical_flux = Rusanov(equation)
-        elif numerical_flux == 'godunov':
-            self.numerical_flux = Godunov(equation)
-        elif numerical_flux == 'roe':
-            self.numerical_flux = Roe(equation)
-        elif numerical_flux == 'ader':
-            # first, set some dt (but will be overwritten by CFL cond. later)
-            self.numerical_flux = ADER(self.mesh, N, N_gl, bc, equation)
-        else:
-            raise NotImplementedError("Unknown numerical_flux {}.".format(
-                numerical_flux) + " Implemented are 'rusanov', 'roe'" +
-                                      ", 'godunov' and 'ader'.")
+        self.numerical_flux = get_numerical_flux(numerical_flux, equation,
+                                                 self.mesh, N, N_gl, bc)
         self.Nt_max = Nt_max
         self.callbacks = callbacks
 

@@ -500,6 +500,10 @@ class ShallowWater(Equation):
         a = self.wave_speed(h)
         return np.array([v - a, v + a])
 
+    def min_max_speed(self, U_L, U_R):
+        l_min = np.min(self.eigenvalues(U_L)) # v_L - a_L
+        l_max = np.max(self.eigenvalues(U_R)) # v_R + a_R
+        return l_min, l_max
 
 class Euler(Equation):
 
@@ -576,3 +580,8 @@ class Euler(Equation):
         rho, v, p = Q[0], Q[1], Q[2]
         a = self.sound_speed(rho, p)
         return np.array([v - a, v, v + a])
+
+    def min_max_speed(self, U_L, U_R):
+        l_min = np.min(self.eigenvalues(U_L)) # v_L - a_L
+        l_max = np.max(self.eigenvalues(U_R)) # v_R + a_R
+        return l_min, l_max

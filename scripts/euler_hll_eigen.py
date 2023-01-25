@@ -10,7 +10,7 @@ if __name__ == "__main__":
     from src.problem import Problem
     from src.util import plot_sols
 
-    case = 4
+    case = 0
     if case == 0:
         gamma = 1.4
         t_end = 0.2
@@ -61,6 +61,26 @@ if __name__ == "__main__":
                 return np.array([3.57134, 2.629369, 10.33333])
             else:
                 return np.array([1.0 + 0.2*np.sin(5*np.pi*x), 0.0, 1.0])
+    elif case == 5:
+        gamma = 1.4
+        t_end = 0.5
+        ylim = [[0.8, 1.5], [-2.0, 2.0], [0.2, 1.8]]
+
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([1.4, 0.0, 1.0])
+            else:
+                return np.array([1.0, 0.0, 1.0])
+    elif case == 6:
+        gamma = 1.4
+        t_end = 0.2
+        ylim = [[0.0, 1.2], [-0.2, 1.5], [0.0, 1.2]]
+
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([1.0, 0.74, 1.0])
+            else:
+                return np.array([0.125, 0.0, 0.1])
     equation = Euler(gamma)
 
     def u0(x):
@@ -74,7 +94,7 @@ if __name__ == "__main__":
                  PlotCallback(equation, ylim=ylim)]
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
-    for num_flux in ["rusanov"]:
+    for num_flux in ["eigen", "hll","rusanov"]:
         problem = Problem(mesh, equation=equation, bc=bc,
                           numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
