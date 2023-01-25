@@ -216,13 +216,13 @@ class LinearScalar(Equation):
         super().__init__("linear advection equation", 1)
 
     def flux(self, u):
-        return np.array([self.a*u])
+        return np.array([self.a*u[0]])
 
     def flux_derivative(self, u, k=1):
         if k == 0:
-            return self.flux(u)
+            return self.flux(u[0])
         elif k == 1:
-            return np.array([self.a])
+            return np.array([[self.a]])
         elif k >= 2:
             return np.array([0.0])
         else:
@@ -230,9 +230,9 @@ class LinearScalar(Equation):
 
     def godunov_state(self, u_L, u_R):
         if self.a >= 0:
-            return u_L
+            return np.array([u_L])
         else:
-            return u_R
+            return np.array([u_R])
 
     def cauchy_kovalevskaya(self, du_dx):
         N = du_dx.shape[1] - 1
@@ -241,6 +241,10 @@ class LinearScalar(Equation):
             du_dt[:, k] = (-self.a)**k*du_dx[:, k]
         return du_dt
 
+    def min_max_speed(self, u_L, u_R):
+        l_min = self.eigenvalues(u_L)[0] # a
+        l_max = self.eigenvalues(U_R)[0] # a
+        return l_min, l_max
 
 class LinearGasDynamics(Equation):
 
@@ -277,6 +281,10 @@ class LinearGasDynamics(Equation):
                                v_R + v_L + self.a/self.rho_0*(rho_L - rho_R)])
         return U_star
 
+    def min_max_speed(self, U_L, U_R):
+        l_min = np.min(self.eigenvalues(U_L)) # -a
+        l_max = np.max(self.eigenvalues(U_R)) # a
+        return l_min, l_max
 
 class Burgers(Equation):
 
@@ -284,13 +292,13 @@ class Burgers(Equation):
         super().__init__("Burgers equation", 1)
 
     def flux(self, u):
-        return np.array([0.5*u**2])
+        return np.array([0.5*u[0]**2])
 
     def flux_derivative(self, u, k=1):
         if k == 0:
             return self.flux(u)
         elif k == 1:
-            return np.array([u])
+            return np.array([[u[0]]])
         elif k == 2:
             return np.array([1.0])
         elif k >= 3:
@@ -307,17 +315,24 @@ class Burgers(Equation):
             # shock
             s = 0.5*(u_R + u_L)
             if 0 <= s:
-                return u_L
+                return np.array([u_L])
             else:
-                return u_R
+                return np.array([u_R])
         else:
             # rarefaction wave
             if 0 <= u_L:
-                return u_L
+                return np.array([u_L])
             elif u_L < 0 and 0 < u_R:
-                return 0
+                return np.array([0])
             else:
-                return u_R
+                return np.array([u_R])
+
+    def min_max_speed(self, u_L, u_R):
+        l_1 = self.eigenvalues(u_L)[0] # u_L
+        l_2 = self.eigenvalues(u_R)[0] # u_R
+        l_min = np.min([l_1, l_2])
+        l_max = np.max([l_1, l_2])
+        return l_min, l_max
 
 
 class Traffic(Equation):
@@ -331,13 +346,13 @@ class Traffic(Equation):
         super().__init__("traffic flow equation", 1)
 
     def flux(self, u):
-        return np.array([u*(1 - u/self.rho_max)*self.v_max])
+        return np.array([u[0]*(1 - u[0]/self.rho_max)*self.v_max])
 
     def flux_derivative(self, u, k=1):
         if k == 0:
             return self.flux(u)
         elif k == 1:
-            return np.array([(1 - 2*u/self.rho_max)*self.v_max])
+            return np.array([[(1 - 2*u[0]/self.rho_max)*self.v_max]])
         elif k == 2:
             return np.array([-2/self.rho_max*self.v_max])
         elif k >= 3:
@@ -354,17 +369,24 @@ class Traffic(Equation):
             # shock
             s = self.v_max*(1 - (u_L + u_R)/self.rho_max)
             if 0 <= s:
-                return u_L
+                return np.array([u_L])
             else:
-                return u_R
+                return np.array([u_R])
         else:
             # rarefaction wave
             if 1/2*self.rho_max >= u_L:
-                return u_L
+                return np.array([u_L])
             elif u_L > 1/2*self.rho_max and 1/2*self.rho_max > u_R:
-                return 1/2*self.rho_max
+                return np.array([1/2*self.rho_max])
             else:
-                return u_R
+                return np.array([u_R])
+
+    def min_max_speed(self, u_L, u_R):
+        l_1 = self.eigenvalues(u_L)[0]
+        l_2 = self.eigenvalues(u_R)[0]
+        l_min = np.min([l_1, l_2])
+        l_max = np.max([l_1, l_2])
+        return l_min, l_max
 
 
 class Cubic(Equation):
@@ -373,15 +395,15 @@ class Cubic(Equation):
         super().__init__("cubic equation", 1)
 
     def flux(self, u):
-        return np.array([u**3/3])
+        return np.array([u[0]**3/3])
 
     def flux_derivative(self, u, k=1):
         if k == 0:
             return self.flux(u)
         elif k == 1:
-            return np.array([u**2])
+            return np.array([[u[0]**2]])
         elif k == 2:
-            return np.array([2*u])
+            return np.array([2*u[0]])
         elif k == 3:
             return np.array([2.0])
         elif k >= 4:
@@ -400,28 +422,35 @@ class Cubic(Equation):
                 # shock
                 s = 1/3*(u_L**2 + u_L*u_R + u_R**2)
                 if 0 <= s:
-                    return u_L
+                    return np.array([u_L])
                 else:
-                    return u_R
+                    return np.array([u_R])
             else:
                 # rarefaction wave
-                return u_L
+                return np.array([u_L])
         elif u_L > 0 and u_R > 0:
             # convex case
             if u_L > u_R:
                 # shock
                 s = 1/3*(u_L**2 + u_L*u_R + u_R**2)
                 if 0 <= s:
-                    return u_L
+                    return np.array([u_L])
                 else:
-                    return u_R
+                    return np.array([u_R])
             else:
                 # rarefaction wave
-                return u_L
+                return np.array([u_L])
         else:
             raise ValueError("u_L and u_R should have the same sign. " +
                              "Otherwise the flux is neither convex nor " +
                              "concave.")
+
+    def min_max_speed(self, u_L, u_R):
+        l_1 = self.eigenvalues(u_L)[0] # u_L**2
+        l_2 = self.eigenvalues(u_R)[0] # u_R**2
+        l_min = np.min([l_1, l_2])
+        l_max = np.max([l_1, l_2])
+        return l_min, l_max
 
 
 class NonlinearSystem(Equation):
@@ -454,6 +483,13 @@ class NonlinearSystem(Equation):
         u_star = u_R * np.sqrt(v_L / u_L * u_R / v_R)
         v_star = v_L / u_L * u_star
         return np.array([u_star, v_star])
+
+    def min_max_speed(self, U_L, U_R):
+        ls = np.array([self.eigenvalues(U_L),
+                       self.eigenvalues(U_R)])
+        l_min = np.min(ls)
+        l_max = np.max(ls)
+        return l_min, l_max
 
 
 class ShallowWater(Equation):

@@ -38,18 +38,16 @@ class Roe(NumericalFlux):
             raise NotImplementedError("Roe flux is only implemented for " +
                                       "scalar equations.")
         else:
-            u_L = u_L[0]
-            u_R = u_R[0]
             if np.abs(u_L - u_R) < self.tol:
                 return self.equation.flux(u_L)
             else:
                 F_L = self.equation.flux(u_L)
                 F_R = self.equation.flux(u_R)
-                s = (F_L - F_R)/(u_L - u_R)
+                s = (F_L - F_R)/(u_L - u_R)[0]
                 if s >= 0:
-                    return np.array([F_L])
+                    return F_L
                 else:
-                    return np.array([F_R])
+                    return F_R
 
 
 class Godunov(NumericalFlux):
