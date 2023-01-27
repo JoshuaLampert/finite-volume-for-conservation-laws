@@ -31,6 +31,16 @@ class Equation:
             l_max = np.maximum(l_max, lam)
         return l_max
 
+    def min_max_speed(self, u_L, u_R):
+        lambda_L = self.eigenvalues(u_L)
+        lambda_R = self.eigenvalues(u_R)
+        # return np.min(lambda_L), np.max(lambda_R)
+        lambda_M = self.eigenvalues(0.5 * (u_L + u_R))
+        lambdas = np.array([lambda_L, lambda_R, lambda_M])
+        lambda_min = np.min(lambdas)
+        lambda_max = np.max(lambdas)
+        return lambda_min, lambda_max
+
     """godunov_state is only needed for applying the Godunov method or the
     ADER flux to this equation"""
     def godunov_state(self, u_L, u_R):
@@ -241,10 +251,6 @@ class LinearScalar(Equation):
             du_dt[:, k] = (-self.a)**k*du_dx[:, k]
         return du_dt
 
-    def min_max_speed(self, u_L, u_R):
-        l_min = self.eigenvalues(u_L)[0] # a
-        l_max = self.eigenvalues(U_R)[0] # a
-        return l_min, l_max
 
 class LinearGasDynamics(Equation):
 
@@ -327,13 +333,6 @@ class Burgers(Equation):
             else:
                 return np.array([u_R])
 
-    def min_max_speed(self, u_L, u_R):
-        l_1 = self.eigenvalues(u_L)[0] # u_L
-        l_2 = self.eigenvalues(u_R)[0] # u_R
-        l_min = np.min([l_1, l_2])
-        l_max = np.max([l_1, l_2])
-        return l_min, l_max
-
 
 class Traffic(Equation):
 
@@ -380,13 +379,6 @@ class Traffic(Equation):
                 return np.array([1/2*self.rho_max])
             else:
                 return np.array([u_R])
-
-    def min_max_speed(self, u_L, u_R):
-        l_1 = self.eigenvalues(u_L)[0]
-        l_2 = self.eigenvalues(u_R)[0]
-        l_min = np.min([l_1, l_2])
-        l_max = np.max([l_1, l_2])
-        return l_min, l_max
 
 
 class Cubic(Equation):
@@ -445,13 +437,6 @@ class Cubic(Equation):
                              "Otherwise the flux is neither convex nor " +
                              "concave.")
 
-    def min_max_speed(self, u_L, u_R):
-        l_1 = self.eigenvalues(u_L)[0] # u_L**2
-        l_2 = self.eigenvalues(u_R)[0] # u_R**2
-        l_min = np.min([l_1, l_2])
-        l_max = np.max([l_1, l_2])
-        return l_min, l_max
-
 
 class NonlinearSystem(Equation):
 
@@ -483,14 +468,6 @@ class NonlinearSystem(Equation):
         u_star = u_R * np.sqrt(v_L / u_L * u_R / v_R)
         v_star = v_L / u_L * u_star
         return np.array([u_star, v_star])
-
-    def min_max_speed(self, U_L, U_R):
-        ls = np.array([self.eigenvalues(U_L),
-                       self.eigenvalues(U_R)])
-        l_min = np.min(ls)
-        l_max = np.max(ls)
-        return l_min, l_max
-
 
 class ShallowWater(Equation):
 
@@ -535,11 +512,6 @@ class ShallowWater(Equation):
         h, v = Q[0], Q[1]
         a = self.wave_speed(h)
         return np.array([v - a, v + a])
-
-    def min_max_speed(self, U_L, U_R):
-        l_min = np.min(self.eigenvalues(U_L)) # v_L - a_L
-        l_max = np.max(self.eigenvalues(U_R)) # v_R + a_R
-        return l_min, l_max
 
 class Euler(Equation):
 
@@ -622,8 +594,3 @@ class Euler(Equation):
         rho, v, p = Q[0], Q[1], Q[2]
         a = self.sound_speed(rho, p)
         return np.array([v - a, v, v + a])
-
-    def min_max_speed(self, U_L, U_R):
-        l_min = np.min(self.eigenvalues(U_L)) # v_L - a_L
-        l_max = np.max(self.eigenvalues(U_R)) # v_R + a_R
-        return l_min, l_max

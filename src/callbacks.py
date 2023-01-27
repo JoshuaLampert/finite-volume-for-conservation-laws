@@ -51,8 +51,13 @@ class PlotCallback(Callback):
                     qu_analytic = self.equation.cons2prim(u_analytic)
             except AttributeError:
                 qu = u
-                qu_analytic = u_analytic
+                if callable(self.analytic_sol):
+                    qu_analytic = u_analytic
                 # print("No primitive variables defined. Plot conservative.")
+        else:
+            qu = u
+            if callable(self.analytic_sol):
+                qu_analytic = u_analytic
 
         for i in range(m):
             ax = plt.subplot(1, num_plots, i + 1)

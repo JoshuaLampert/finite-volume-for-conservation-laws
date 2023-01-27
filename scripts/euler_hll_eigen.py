@@ -10,7 +10,7 @@ if __name__ == "__main__":
     from src.problem import Problem
     from src.util import plot_sols
 
-    case = 6
+    case = 3
     if case == 0:
         gamma = 1.4
         t_end = 0.2
