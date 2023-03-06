@@ -62,6 +62,7 @@ class Godunov(NumericalFlux):
                                       "Godunov numerical_flux.")
         return self.equation.flux(self.equation.godunov_state(u_L, u_R))
 
+
 class HLL(NumericalFlux):
 
     def __init__(self, equation=Burgers()):
@@ -79,9 +80,10 @@ class HLL(NumericalFlux):
             F_HLL = (S_R*F_L - S_L*F_R + S_R*S_L*(u_R - u_L)) / (S_R - S_L)
             return F_HLL
 
-class Eigen(NumericalFlux):
 
-    def __init__(self, equation=Burgers(), C=0.5, numerical_flux='rusanov'):
+class PredCorr(NumericalFlux):
+
+    def __init__(self, equation=Burgers(), C=0.95, numerical_flux='rusanov'):
         super().__init__(equation)
         self.C = C
         self.numerical_flux = get_numerical_flux(numerical_flux, equation)
@@ -99,6 +101,7 @@ class Eigen(NumericalFlux):
         for k in range(self.equation.m):
             u_star -= 0.5*np.sign(lambda_hat[k])*alpha[k]*R_hat[:, k]
         return self.equation.flux(u_star)
+
 
 class SpaceBase:
 
