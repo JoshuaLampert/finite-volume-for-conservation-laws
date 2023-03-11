@@ -36,7 +36,8 @@ def contains_stepsize_callback(callbacks):
 
 def get_numerical_flux(numerical_flux, equation=Burgers(),
                        mesh=None, N=3, N_gl=8, bc="transparent"):
-    from .num_flux import NumericalFlux, Rusanov, Roe, Godunov, HLL, Eigen, ADER
+    from .num_flux import NumericalFlux, Rusanov, Roe, Godunov, HLL, PredCorr
+    from .num_flux import ADER
     if isinstance(numerical_flux, NumericalFlux):
         return numerical_flux
     elif numerical_flux.lower() == 'rusanov':
@@ -47,8 +48,8 @@ def get_numerical_flux(numerical_flux, equation=Burgers(),
         return Godunov(equation)
     elif numerical_flux.lower() == 'hll':
         return HLL(equation)
-    elif numerical_flux.lower() == 'eigen':
-        return Eigen(equation)
+    elif numerical_flux.lower() == 'predcorr':
+        return PredCorr(equation)
     elif numerical_flux.lower() == 'ader':
         if mesh is None:
             raise ValueError("You need to provide a mesh to use the ADER flux")
@@ -56,7 +57,7 @@ def get_numerical_flux(numerical_flux, equation=Burgers(),
     else:
         raise NotImplementedError("Unknown numerical_flux {}.".format(
             numerical_flux) + " Implemented are 'rusanov', 'roe'" +
-                                  ", 'godunov', 'hll', 'eigen' and 'ader'.")
+                                  ", 'godunov', 'hll', 'predcorr' and 'ader'.")
 
 
 def plot_sols(problems, g, title="", additional_plots=[], ylim=None, save=True,

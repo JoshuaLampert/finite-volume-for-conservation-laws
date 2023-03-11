@@ -10,7 +10,7 @@ if __name__ == "__main__":
     from src.problem import Problem
     from src.util import plot_sols
 
-    case = 3
+    case = 2
     if case == 0:
         gamma = 1.4
         t_end = 0.2
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                               ylim=ylim)]
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
-    for num_flux in ["eigen", "hll", "rusanov"]:
+    for num_flux in ["predcorr", "hll", "rusanov"]:
         problem = Problem(mesh, equation=equation, bc=bc,
                           numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
