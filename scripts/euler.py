@@ -10,7 +10,7 @@ if __name__ == "__main__":
     from src.problem import Problem
     from src.util import plot_sols
 
-    case = 4
+    case = 8
     if case == 0:
         gamma = 1.4
         t_end = 0.2
@@ -61,6 +61,42 @@ if __name__ == "__main__":
                 return np.array([3.57134, 2.629369, 10.33333])
             else:
                 return np.array([1.0 + 0.2*np.sin(5*np.pi*x), 0.0, 1.0])
+    elif case == 5:
+        gamma = 1.4
+        t_end = 0.3
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([1.0, -2.0, 0.4])
+            else:
+                return np.array([1.0, 2.0, 0.4])
+        ylim = [[-0.1, 1.1], [-2.1, 2.1], [-0.1, 0.5], [-0.1, 1.1]]
+    elif case == 6:
+        gamma = 1.4
+        t_end = 0.024
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([1.0, 0.0, 1000.0])
+            else:
+                return np.array([1.0, 0.0, 0.01])
+        ylim = [[-0.1, 5.5], [-1.0, 21.0], [-5.0, 1005.0], [-5.0, 2600.0]]
+    elif case == 7:
+        gamma = 1.4
+        t_end = 0.07
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([1.0, 0.0, 0.01])
+            else:
+                return np.array([1.0, 0.0, 100])
+        ylim = [[-0.1, 5.5], [-8.0, 1.0], [-5.0, 100.5], [-5.0, 250.0]]
+    elif case == 8:
+        gamma = 1.4
+        t_end = 0.07
+        def u0_prim(x):
+            if x < 0.0:
+                return np.array([5.99924, 19.5975, 460.894])
+            else:
+                return np.array([5.99242, -6.19633, 46.095])
+        ylim = [[-2.0, 40.0], [-10.0, 21.0], [-10.0, 2000.0], [-5.0, 350.0]]
     equation = Euler(gamma)
 
     def u0(x):
