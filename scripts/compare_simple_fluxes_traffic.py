@@ -25,7 +25,7 @@ if __name__ == "__main__":
                  PlotCallback(equation, ylim=ylim)]
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
-    for num_flux in ['eigen', 'hll', 'rusanov', 'godunov', 'roe']:
+    for num_flux in ['predcorr', 'hll', 'rusanov', 'godunov', 'roe']:
         problem = Problem(mesh, equation=equation, bc=bc,
                           numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
