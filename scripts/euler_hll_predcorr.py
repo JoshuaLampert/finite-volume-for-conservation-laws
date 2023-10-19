@@ -10,11 +10,11 @@ if __name__ == "__main__":
     from src.problem import Problem
     from src.util import plot_sols
 
-    case = 8
+    case = 2
     if case == 0:
         gamma = 1.4
         t_end = 0.2
-        ylim = [[0.0, 1.2], [-0.2, 1.0], [0.0, 1.2], [1.8, 3.0]]
+        ylim = [[0.0, 1.2], [-0.2, 1.0], [0.0, 1.2], [1.7, 3.0]]
 
         def u0_prim(x):
             if x < 0.0:
@@ -63,40 +63,24 @@ if __name__ == "__main__":
                 return np.array([1.0 + 0.2*np.sin(5*np.pi*x), 0.0, 1.0])
     elif case == 5:
         gamma = 1.4
-        t_end = 0.3
+        t_end = 0.5
+        ylim = [[0.8, 1.5], [-2.0, 2.0], [0.2, 1.8], [1.7, 2.6]]
+
         def u0_prim(x):
             if x < 0.0:
-                return np.array([1.0, -2.0, 0.4])
+                return np.array([1.4, 0.0, 1.0])
             else:
-                return np.array([1.0, 2.0, 0.4])
-        ylim = [[-0.1, 1.1], [-2.1, 2.1], [-0.1, 0.5], [-0.1, 1.1]]
+                return np.array([1.0, 0.0, 1.0])
     elif case == 6:
         gamma = 1.4
-        t_end = 0.024
+        t_end = 0.2
+        ylim = [[0.0, 1.2], [-0.2, 1.5], [0.0, 1.2], [1.9, 3.5]]
+
         def u0_prim(x):
             if x < 0.0:
-                return np.array([1.0, 0.0, 1000.0])
+                return np.array([1.0, 0.74, 1.0])
             else:
-                return np.array([1.0, 0.0, 0.01])
-        ylim = [[-0.1, 5.5], [-1.0, 21.0], [-5.0, 1005.0], [-5.0, 2600.0]]
-    elif case == 7:
-        gamma = 1.4
-        t_end = 0.07
-        def u0_prim(x):
-            if x < 0.0:
-                return np.array([1.0, 0.0, 0.01])
-            else:
-                return np.array([1.0, 0.0, 100])
-        ylim = [[-0.1, 5.5], [-8.0, 1.0], [-5.0, 100.5], [-5.0, 250.0]]
-    elif case == 8:
-        gamma = 1.4
-        t_end = 0.07
-        def u0_prim(x):
-            if x < 0.0:
-                return np.array([5.99924, 19.5975, 460.894])
-            else:
-                return np.array([5.99242, -6.19633, 46.095])
-        ylim = [[-2.0, 40.0], [-10.0, 21.0], [-10.0, 2000.0], [-5.0, 350.0]]
+                return np.array([0.125, 0.0, 0.1])
     equation = Euler(gamma)
 
     def u0(x):
@@ -112,7 +96,7 @@ if __name__ == "__main__":
                               ylim=ylim)]
     # callbacks = [StepsizeCallback(equation, mesh, CFL=CFL)]
     problems = {}
-    for num_flux in ["rusanov"]:
+    for num_flux in ["predcorr", "hll", "rusanov"]:
         problem = Problem(mesh, equation=equation, bc=bc,
                           numerical_flux=num_flux, callbacks=callbacks)
         problems[num_flux] = problem
